@@ -1,10 +1,9 @@
 require('../database');
 const router = require('express').Router();
-const User = require('../models/User');
+const SessionController = require('../controllers/SessionController');
+const UserController = require('../controllers/UserController');
 
-router.post('/user', async (req, res) => {
-    const user = await User.create(req.body);
-    return res.json(user);
-})
+router.post('/users', UserController.create);
+router.post('/session', SessionController.create);
 
 module.exports = router;
