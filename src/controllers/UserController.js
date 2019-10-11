@@ -10,13 +10,13 @@ const create = async(req, res) => {
     if (!(await schema.isValid(req.body))) {
         return res.status(400).json({ error: 'Validation fails.' })
     }
-
+    
     const userExists = await User.findOne({ email: req.body.email })
     if (userExists) {
         return res.status(400).json({ error: 'User not available.' })
     }
 
-    const user = await User.create(req.body);
+    const user = await User.create(req.body);        
 
     return res.status(201).json(user);
 }
@@ -34,7 +34,7 @@ const update = async (req, res) => {
             .when('password', (password, field) =>
                 password ? field.required().oneOf([Yup.ref('password')]) : field
             )    
-    }) 
+    })
 
     if (!(await schema.isValid(req.body))) {
         return res.status(400).json({ error: 'Validations fails.' })
