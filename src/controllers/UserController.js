@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const Yup = require('yup');
+const { validate } = require('../utils/validation');
 
 const create = async(req, res) => {
     const schema = Yup.object().shape({
@@ -7,16 +8,18 @@ const create = async(req, res) => {
         email: Yup.string().email().required(),
         password: Yup.string().required().min(6)
     })
-    if (!(await schema.isValid(req.body))) {
-        return res.status(400).json({ error: 'Validation fails.' })
+
+    const { value, errors } = await validate(req.body, schema);
+    if (errors) {
+        return res.status(400).json(errors);
     }
-    
-    const userExists = await User.findOne({ email: req.body.email })
+        
+    const userExists = await User.findOne({ email: value.email })
     if (userExists) {
         return res.status(400).json({ error: 'User not available.' })
     }
 
-    const user = await User.create(req.body);        
+    const user = await User.create(value);        
 
     return res.status(201).json(user);
 }
