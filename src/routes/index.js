@@ -14,5 +14,6 @@ router.put('/users', UserController.update);
 
 router.post('/tools', ToolController.create);
 router.get('/tools', ToolController.index);
+router.delete('/tools/:id', ToolController.remove);
 
 module.exports = router;
