@@ -10,7 +10,11 @@ const create = async (req, res) => {
       .required(),
     password: Yup.string()
       .required()
-      .min(6)
+      .min(6),
+    role: Yup.array()
+      .required()
+      .max(2)
+      .of(Yup.string().oneOf(["moderator", "normal"]))
   });
 
   const { value, errors } = await validate(req.body, schema);
