@@ -14,7 +14,7 @@ const create = async (req, res) => {
     role: Yup.array()
       .required()
       .max(2)
-      .of(Yup.string().oneOf(["moderator", "normal"]))
+      .of(Yup.string().oneOf(['moderator', 'normal']))
   });
 
   const { value, errors } = await validate(req.body, schema);

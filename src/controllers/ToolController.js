@@ -40,9 +40,14 @@ const remove = async(req, res) => {
     .findById(req.params.id)
     .populate('user');
 
-  if (tool.user._id !== req.user.id) {
-    return res.status(401).json({ error: "You don't have permission to delete this tool." }) 
-  }
+  /**
+   * Check if the user is the moderator
+   */
+  if (req.user.role.indexOf('moderator') === -1) {
+    if (tool.user._id !== req.user.id) {
+      return res.status(401).json({ error: "You don't have permission to delete this tool." }) 
+    }
+  }    
   
   await Tool.remove({ _id: req.params.id });
   res.status(204).send();
