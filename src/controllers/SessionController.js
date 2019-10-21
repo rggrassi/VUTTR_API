@@ -34,7 +34,7 @@ const create = async (req, res) => {
 
   return res.json({
     user: { id, name, email, role },
-    token: jwt.sign({ id, name, email }, process.env.APP_SECRET, {
+    token: jwt.sign({ id, name, email, role }, process.env.APP_SECRET, {
       expiresIn: "7d"
     })
   });

@@ -11,20 +11,33 @@ const create = async (req, res) => {
     password: Yup.string()
       .required()
       .min(6),
-    role: Yup.array()
-      .required()
-      .max(2)
-      .of(Yup.string().oneOf(['moderator', 'normal']))
+    role: Yup.string()
+      .when('$role', (role, field) =>
+        role === 'admin' ? field.required() : field
+      )  
   });
 
-  const { value, errors } = await validate(req.body, schema);
+  const { value, errors } = await validate(req.body, schema, {
+    role: req.user.role || ''
+  });
+
   if (errors) {
     return res.status(400).json(errors);
   }
+  
+  if (!req.user) {
+    value.role = 'user'
+  }    
+  /**
+   * Check that the logged in user has administrator permissions to create new users.
+   */
+  if (req.user && req.user.role === 'user') {
+    return res.status(401).json({ error: 'Only admins can create new users.' })
+  }  
 
-  const userExists = await User.findOne({ email: value.email });
-  if (userExists) {
-    return res.status(400).json({ error: "User not available." });
+  const emailExists = await User.findOne({ email: value.email });
+  if (emailExists) {
+    return res.status(400).json({ error: "Email already taken." });
   }
 
   const user = await User.create(value);
@@ -44,12 +57,21 @@ const update = async (req, res) => {
       ),
     confirmPassword: Yup.string().when("password", (password, field) =>
       password ? field.required().oneOf([Yup.ref("password")]) : field
-    )
+    ),
+    role: Yup.string()
   });
 
   const { errors, value } = await validate(req.body, schema);
   if (errors) {
     return res.status(400).json(errors);
+  }
+
+  /**
+   * Check that the logged in user has administrator permissions to update data from other users.
+   * Otherwise it can update data only from its own user.
+   */
+  if (req.user.role === 'user' && req.user.id !== req.params.id) {
+    return res.status(401).json({ error: 'Only admins can update any user.' })
   }
 
   const user = await User.findById(req.user.id);
@@ -68,6 +90,12 @@ const update = async (req, res) => {
   user.name = value.name || user.name;
   user.email = value.email || user.email;
   user.password = value.password || user.password;
+  if (req.user.role === 'user') {
+    user.role = 'user';
+  } else {
+    user.role = value.role || user.role
+  }
+
   const updatedUser = await user.save();
   return res.json(updatedUser);
 };

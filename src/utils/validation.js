@@ -9,11 +9,12 @@ function extractErrors(err) {
   }, {});
 }
 
-async function validate(obj, schema) {
+async function validate(obj, schema, context = {}) {
   return schema
     .validate(obj, {
       abortEarly: false,
-      stripUnknown: true
+      stripUnknown: true,      
+      context: context       
     })
     .then(value => {
       return { value, errors: null };

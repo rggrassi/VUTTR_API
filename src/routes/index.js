@@ -10,7 +10,7 @@ router.post('/session', SessionController.create);
 
 router.use(auth);
 
-router.put('/users', UserController.update);
+router.put('/users/:id', UserController.update);
 
 router.post('/tools', ToolController.create);
 router.get('/tools', ToolController.index);

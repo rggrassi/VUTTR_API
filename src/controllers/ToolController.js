@@ -35,15 +35,9 @@ const index = async (req, res) => {
   return res.json(tools);
 };
 
-const remove = async(req, res) => {
-  const tool = await Tool
-    .findById(req.params.id)
-    .populate('user');
-
-  /**
-   * Check if the user is the moderator
-   */
-  if (req.user.role.indexOf('moderator') === -1) {
+const remove = async(req, res) => {  
+  if (req.user.role !== 'admin') {
+    const tool = await Tool.findById(req.params.id).populate('user');    
     if (tool.user._id !== req.user.id) {
       return res.status(401).json({ error: "You don't have permission to delete this tool." }) 
     }
