@@ -11,35 +11,29 @@ const create = async (req, res) => {
     password: Yup.string()
       .required()
       .min(6),
-    role: Yup.string()
-      .when('$role', (role, field) =>
-        role === 'admin' ? field.required() : field
-      )  
+    role: Yup.string()      
   });
 
-  const { value, errors } = await validate(req.body, schema, {
-    role: req.user.role || ''
-  });
-
+  const { value, errors } = await validate(req.body, schema);
   if (errors) {
     return res.status(400).json(errors);
-  }
-  
-  if (!req.user) {
-    value.role = 'user'
-  }    
-  /**
-   * Check that the logged in user has administrator permissions to create new users.
-   */
-  if (req.user && req.user.role === 'user') {
-    return res.status(401).json({ error: 'Only admins can create new users.' })
   }  
+  
+  /**
+   * Checks if the user is logged in. 
+   * Because only admin users can create new users.
+   */
+  if (!req.user) {
+    value.role = 'user';
+  } else if (req.user && req.user.role === 'user') {
+    return res.status(401).json({ error: 'Only admins can create new users.' })
+  }
 
-  const emailExists = await User.findOne({ email: value.email });
+  emailExists = await User.findOne({ email: value.email });
   if (emailExists) {
     return res.status(400).json({ error: "Email already taken." });
-  }
-
+  }  
+  
   const user = await User.create(value);
 
   return res.status(201).json(user);
@@ -58,7 +52,7 @@ const update = async (req, res) => {
     confirmPassword: Yup.string().when("password", (password, field) =>
       password ? field.required().oneOf([Yup.ref("password")]) : field
     ),
-    role: Yup.string()
+    role: Yup.string()    
   });
 
   const { errors, value } = await validate(req.body, schema);
@@ -67,14 +61,21 @@ const update = async (req, res) => {
   }
 
   /**
-   * Check that the logged in user has administrator permissions to update data from other users.
-   * Otherwise it can update data only from its own user.
+   * Checks if the user is trying to update data from other users. 
+   * Because only admin users have this permission.
    */
   if (req.user.role === 'user' && req.user.id !== req.params.id) {
-    return res.status(401).json({ error: 'Only admins can update any user.' })
+    return res.status(401).json({ error: 'Only admins can update any user.' });
   }
 
-  const user = await User.findById(req.user.id);
+  /**
+   * Force the role to ['user'] if any ordinary user tries to upgrade their role to admin.
+   */
+  if (req.user.role === 'user') {
+    value.role = 'user'
+  }
+
+  const user = await User.findById(req.params.id);
 
   if (value.email && value.email !== user.email) {
     const userExists = await User.findOne({ email: value.email });
@@ -90,11 +91,7 @@ const update = async (req, res) => {
   user.name = value.name || user.name;
   user.email = value.email || user.email;
   user.password = value.password || user.password;
-  if (req.user.role === 'user') {
-    user.role = 'user';
-  } else {
-    user.role = value.role || user.role
-  }
+  user.role = value.role || user.role; 
 
   const updatedUser = await user.save();
   return res.json(updatedUser);
