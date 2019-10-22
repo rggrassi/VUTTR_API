@@ -21,7 +21,7 @@ const create = async (req, res) => {
 
   const emailExists = await User.findOne({ email: value.email });
   if (emailExists) {
-    return res.status(400).json({ error: 'User not available.' });
+    return res.status(400).json({ error: 'User not available' });
   }    
   
   value.role = 'user';
@@ -52,11 +52,19 @@ const update = async (req, res) => {
   }
 
   /**
+   * Checks if [id] passed by parameter matches the registered user
+   */
+  const user = await User.findById(req.params.id);
+  if (!user) {
+    return res.status(404).json({ error: 'User not found' })
+  }
+
+  /**
    * Checks if the user is trying to update data from other users. 
    * Because only admin users have this permission.
    */
   if (req.user.role === 'user' && req.user.id !== req.params.id) {
-    return res.status(401).json({ error: 'Only admins can update any user.' });
+    return res.status(401).json({ error: 'Only admins can update any user' });
   }
 
   /**
@@ -66,23 +74,15 @@ const update = async (req, res) => {
     value.role = 'user'
   }
 
-  /**
-   * Checks if [id] passed by parameter matches the registered user
-   */
-  const user = await User.findById(req.params.id);
-  if (!user) {
-    return res.status(404).json({ error: 'User not found.' })
-  }
-
   if (value.email && value.email !== user.email) {
     const userExists = await User.findOne({ email: value.email });
     if (userExists) {
-      return res.status(400).json({ error: 'User not available.' });
+      return res.status(400).json({ error: 'User not available' });
     }
   }
 
   if (req.body.oldPassword && !(await user.checkPassword(req.body.oldPassword))) {
-    return res.status(401).json({ error: 'Wrong credentials.' });
+    return res.status(401).json({ error: 'Wrong credentials' });
   }
 
   user.name = value.name || user.name;

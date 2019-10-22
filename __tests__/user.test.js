@@ -3,9 +3,14 @@ const app = require('../src/app');
 const User = require('../src/models/User');
 
 describe('User', () => {
-  const user = {
+  const userAux = {
     name: 'Rodrigo Grassi',
     email: 'rgrassi1@gmail.com',
+    password: '123456'
+  }
+  const userAux2 = {
+    name: 'Robert Ryan',
+    email: 'robert@email.com',
     password: '123456'
   }
 
@@ -16,7 +21,7 @@ describe('User', () => {
   it('should be able to register', async () => {
     const response = await request(app)
       .post('/users')
-      .send(user)
+      .send(userAux)
       .expect('Content-Type', /json/);
 
     expect(response.body).toHaveProperty('_id');
@@ -25,35 +30,36 @@ describe('User', () => {
     expect(response.status).toBe(201);
   })
 
-  it('should not be able register an user with email already used', async () => {
-    await request(app)
-      .post('/users')
-      .send(user);
+  it('should not be able register an user with email already used', async () => {    
+    await User.create(userAux);  
 
     const response = await request(app)
       .post('/users')
-      .send(user)
+      .send(userAux)
       .expect('Content-Type', /json/);
 
     expect(response.status).toBe(400); 
+    expect(response.body.error).toBe('User not available');
   })
 
   describe('User authenticated', () => {
     let token = '';
-    let idUser = '';
+    let userNew = {};
+    let userNew2 = {};
+
     beforeEach(async () => {
-      const { _id } = await User.create(user);
-      idUser = _id;
+      userNew = await User.create(userAux);
+      userNew2 = await User.create(userAux2);
 
       const auth = await request(app)
         .post('/session')
-        .send({ email: 'rgrassi1@gmail.com', password: '123456' });
+        .send({ email: userAux.email, password: userAux.password });
       token = auth.body.token;  
     })
 
-    it('should be able to update your registration', async () => {
+    it('should be able to update your registration', async (done) => {
       const response = await request(app)
-        .put(`/users/${idUser}`)
+        .put(`/users/${userNew._id}`)
         .set('Authorization', `Bearer: ${token}`)
         .send({
           name: 'Rodrigo Antonio Grassi',
@@ -64,6 +70,72 @@ describe('User', () => {
       expect(response.status).toBe(200);
       expect(response.body.name).toBe('Rodrigo Antonio Grassi'); 
       expect(response.body.email).toBe('rodrigo@gmail.com');
+
+      done();
+    })
+
+    it('should return 404 if user is not found by [id]', async() => {
+      const response = await request(app)
+        .put('/users/000000000000ffffffffffff')
+        .set('Authorization', `Bearer: ${token}`)
+        .send({
+          name: 'User not found',
+          email: 'notfound@email.com'
+        })
+        .expect('Content-Type', /json/);
+
+        expect(response.status).toBe(404);
+        expect(response.body.error).toBe('User not found');    
+    })
+
+    it('should not be able to update other records without administrator role', async (done) => {
+      const response = await request(app)
+        .put(`/users/${userNew2._id}`)
+        .set('Authorization', `Bearer: ${token}`)
+        .send({
+          name: 'Admin Rodrigo Grassi',
+          email: 'rgrassi1@gmail.com',
+          role: 'admin'
+        })
+        .expect('Content-Type', /json/);
+
+        expect(response.status).toBe(401);
+        expect(response.body.error).toBe('Only admins can update any user');    
+
+        done();
+    })
+
+    it('should not update a user with a registered email', async (done) => {    
+      const response = await request(app)
+        .put(`/users/${userNew._id}`)
+        .set('Authorization', `Bearer: ${token}`)
+        .send({
+          name: 'Rodrigo Antonio Grassi',
+          email: 'robert@email.com',
+        })
+        .expect('Content-Type', /json/);
+  
+      expect(response.status).toBe(400); 
+      expect(response.body.error).toBe('User not available');
+
+      done();
+    })
+  
+    it('should not be possible to change the password without checking the old one', async (done) => {
+      const response = await request(app)
+        .put(`/users/${userNew._id}`)
+        .set('Authorization', `Bearer: ${token}`)
+        .send({
+          oldPassword: '1234567',
+          password: 'root1234',
+          confirmPassword: 'root1234'
+        })
+        .expect('Content-Type', /json/);
+  
+        expect(response.status).toBe(401);
+        expect(response.body.error).toBe('Wrong credentials')
+
+        done();
     })
   })
 })

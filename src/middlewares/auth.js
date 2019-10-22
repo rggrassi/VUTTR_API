@@ -7,8 +7,8 @@ module.exports = (req, res, next) => {
     }
     const [bearer, token] = authorization.split(' ');
     try {
-        const { id, name, email } = jwt.verify(token, process.env.APP_SECRET);        
-        req.user = { id, name, email };
+        const { id, name, email, role } = jwt.verify(token, process.env.APP_SECRET);        
+        req.user = { id, name, email, role };
         return next();
     } catch (error) {
         res.status(401).json({ error: 'Token not valid' })
