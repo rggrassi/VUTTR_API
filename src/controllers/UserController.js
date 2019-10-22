@@ -18,6 +18,11 @@ const create = async (req, res) => {
   if (errors) {
     return res.status(400).json(errors);
   }  
+
+  const emailExists = await User.findOne({ email: value.email });
+  if (emailExists) {
+    return res.status(400).json({ error: "User not available." });
+  }  
   
   /**
    * Checks if the user is logged in. 
@@ -28,11 +33,6 @@ const create = async (req, res) => {
   } else if (req.user && req.user.role === 'user') {
     return res.status(401).json({ error: 'Only admins can create new users.' })
   }
-
-  emailExists = await User.findOne({ email: value.email });
-  if (emailExists) {
-    return res.status(400).json({ error: "Email already taken." });
-  }  
   
   const user = await User.create(value);
 
