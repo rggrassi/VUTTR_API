@@ -21,20 +21,11 @@ const create = async (req, res) => {
 
   const emailExists = await User.findOne({ email: value.email });
   if (emailExists) {
-    return res.status(400).json({ error: "User not available." });
-  }  
+    return res.status(400).json({ error: 'User not available.' });
+  }    
   
-  /**
-   * Checks if the user is logged in. 
-   * Because only admin users can create new users.
-   */
-  if (!req.user) {
-    value.role = 'user';
-  } else if (req.user && req.user.role === 'user') {
-    return res.status(401).json({ error: 'Only admins can create new users.' })
-  }
-  
-  const user = await User.create(value);
+  value.role = 'user';
+  const user = await User.create(value);  
 
   return res.status(201).json(user);
 };
@@ -46,11 +37,11 @@ const update = async (req, res) => {
     oldPassword: Yup.string().min(6),
     password: Yup.string()
       .min(6)
-      .when("oldPassword", (oldPassword, field) =>
+      .when('oldPassword', (oldPassword, field) =>
         oldPassword ? field.required() : field
       ),
-    confirmPassword: Yup.string().when("password", (password, field) =>
-      password ? field.required().oneOf([Yup.ref("password")]) : field
+    confirmPassword: Yup.string().when('password', (password, field) =>
+      password ? field.required().oneOf([Yup.ref('password')]) : field
     ),
     role: Yup.string()    
   });
@@ -75,17 +66,23 @@ const update = async (req, res) => {
     value.role = 'user'
   }
 
+  /**
+   * Checks if [id] passed by parameter matches the registered user
+   */
   const user = await User.findById(req.params.id);
+  if (!user) {
+    return res.status(404).json({ error: 'User not found.' })
+  }
 
   if (value.email && value.email !== user.email) {
     const userExists = await User.findOne({ email: value.email });
     if (userExists) {
-      return res.status(400).json({ error: "User not available." });
+      return res.status(400).json({ error: 'User not available.' });
     }
   }
 
   if (req.body.oldPassword && !(await user.checkPassword(req.body.oldPassword))) {
-    return res.status(401).json({ error: "Wrong credentials." });
+    return res.status(401).json({ error: 'Wrong credentials.' });
   }
 
   user.name = value.name || user.name;
