@@ -7,7 +7,7 @@ describe('Session', () => {
     await User.deleteMany({});
   })
     
-  it('should be able for the user to authenticate to the api', async () => {
+  it('should be able to authenticate to the API', async () => {
     await User.create({  
       name: 'Rodrigo Grassi',
       email: 'rgrassi1@gmail.com',
