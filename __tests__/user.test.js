@@ -99,7 +99,6 @@ describe('User', () => {
         .put(`/users/${userNew._id}`)
         .set('Authorization', `Bearer: ${token}`)
         .send({
-          name: '',
           email: 'rgrassi1$email.com',
           password: '12345',        
         })  
