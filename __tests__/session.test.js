@@ -49,7 +49,7 @@ describe('Session', () => {
       expect(response.body.message).toBe('Validation fails');    
   })
 
-  it('should not be possible to authenticate to the API without first registering', async (done) => {
+  it('should not be able to authenticate to the API without first registering', async (done) => {
     const response = await request(app)
       .post('/session')
       .send({
@@ -80,5 +80,4 @@ describe('Session', () => {
       expect(response.status).toBe(401);
       expect(response.body.error).toBe('Wrong credentials');    
   })
-
 })

@@ -7,13 +7,14 @@ const create = async (req, res) => {
     title: Yup.string().required(),
     link: Yup.string().required(),
     description: Yup.string().required(),
-    user: Yup.string().required()
   });
 
   const { value, errors } = await validate(req.body, schema);
   if (errors) {
     return res.status(400).json(errors);
   }
+
+  value.user = req.user.id;
 
   const tool = await Tool.create(value);
   return res.status(201).json(tool);
@@ -39,7 +40,7 @@ const remove = async(req, res) => {
   if (req.user.role !== 'admin') {
     const tool = await Tool.findById(req.params.id).populate('user');    
     if (tool.user._id !== req.user.id) {
-      return res.status(401).json({ error: "You don't have permission to delete this tool." }) 
+      return res.status(401).json({ error: "Only admins can delete any tool" }) 
     }
   }    
   
