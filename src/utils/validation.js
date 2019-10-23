@@ -22,7 +22,7 @@ async function validate(obj, schema, context = {}) {
     .catch(err => {
       return {
         errors: {
-          message: "Validation fails",
+          message: 'Validation fails',
           errors: extractErrors(err)
         },
         value: null

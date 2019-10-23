@@ -30,6 +30,26 @@ describe('User', () => {
     expect(response.status).toBe(201);
   })
 
+  it('should not be able to register a user with invalid data', async () => {
+    const response = await request(app)
+      .post('/users')
+      .send({
+        name: '',
+        email: 'rgrassi1$email.com',
+        password: '12345',        
+      })  
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe('Validation fails');    
+  })
+
+  it('should encrypt the user password when a new user created or password changed', async () => {
+    const user = await User.create(userAux);
+    const compareHash = await user.checkPassword(userAux.password);
+
+    expect(compareHash).toBe(true);
+  })
+
   it('should not be able register an user with email already used', async () => {    
     await User.create(userAux);  
 
@@ -74,6 +94,20 @@ describe('User', () => {
       done();
     })
 
+    it('should not be able to update a user with invalid data', async () => {
+      const response = await request(app)
+        .put(`/users/${userNew._id}`)
+        .set('Authorization', `Bearer: ${token}`)
+        .send({
+          name: '',
+          email: 'rgrassi1$email.com',
+          password: '12345',        
+        })  
+  
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('Validation fails');    
+    })  
+
     it('should return 404 if user is not found by [id]', async() => {
       const response = await request(app)
         .put('/users/000000000000ffffffffffff')
@@ -105,7 +139,7 @@ describe('User', () => {
         done();
     })
 
-    it('should not update a user with a registered email', async (done) => {    
+    it('should not be able update a user with a registered email', async (done) => {    
       const response = await request(app)
         .put(`/users/${userNew._id}`)
         .set('Authorization', `Bearer: ${token}`)
@@ -121,7 +155,7 @@ describe('User', () => {
       done();
     })
   
-    it('should not be possible to change the password without checking the old one', async (done) => {
+    it('should not be able to change the password without checking the old one', async (done) => {
       const response = await request(app)
         .put(`/users/${userNew._id}`)
         .set('Authorization', `Bearer: ${token}`)
