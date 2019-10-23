@@ -31,7 +31,7 @@ describe('Session', () => {
     expect(response.body.user).toHaveProperty('role');
   })
 
-  it('should not be able for the user to authenticate to api with invalid data', async () => {
+  it('should not be able to authenticate to the API with invalid data', async () => {
     await User.create({  
       name: 'Rodrigo Grassi',
       email: 'rgrassi1@gmail.com',
