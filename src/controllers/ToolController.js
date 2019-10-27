@@ -1,6 +1,7 @@
 const Tool = require('../models/Tool');
 const Yup = require('yup');
 const { validate } = require('../utils/validation');
+const { Types } = require('mongoose');
 
 const create = async (req, res) => {
   const schema = Yup.object().shape({
@@ -24,7 +25,7 @@ const index = async (req, res) => {
   const filter = req.query.tag
     ? {
         tags: {
-          $in: req.query.tag.split(",")
+          $in: req.query.tag.split(',')
         }
       }
     : {};
@@ -38,13 +39,13 @@ const index = async (req, res) => {
 
 const remove = async(req, res) => {  
   if (req.user.role !== 'admin') {
-    const tool = await Tool.findById(req.params.id).populate('user');    
-    if (tool.user._id !== req.user.id) {
-      return res.status(401).json({ error: "Only admins can delete any tool" }) 
+    const tool = await Tool.findById(req.params.id).populate('user');      
+    if (!Types.ObjectId(tool.user._id).equals(Types.ObjectId(req.user.id))) {
+      return res.status(401).json({ error: 'Only admins can delete any tool' });
     }
   }    
   
-  await Tool.remove({ _id: req.params.id });
+  await Tool.deleteOne({ _id: req.params.id });
   res.status(204).send();
 }
 

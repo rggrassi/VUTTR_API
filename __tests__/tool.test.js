@@ -61,6 +61,56 @@ describe('Tool', () => {
     done();
   })
 
+  it('should be able remove a tool', async (done) => {
+    const tool = await Tool.create({
+      title: 'Yup',
+      link: 'https://github.com/jquense/yup',
+      description: 'Dead simple Object schema validation',
+      tags:  ['validation', 'javascript'],
+      user: user._id  
+    })
+
+    const response = await request(app)
+      .delete(`/tools/${tool._id}`)      
+      .set('Authorization', `Bearer: ${token}`)
+
+    expect(response.status).toBe(204);
+
+    done();
+  })
+
+  it('the user should not be able to remove a tool that has not been registered.', async (done) => {
+    await User.create({
+      name: 'Lee Marvin',
+      email: 'lee.marvin@email.com',
+      password: '123456'
+    })
+
+    const auth = await request(app)
+      .post('/session')
+      .send({
+        email: 'lee.marvin@email.com',
+        password: '123456'
+      })
+
+    const tool = await Tool.create({
+      title: 'Yup',
+      link: 'https://github.com/jquense/yup',
+      description: 'Dead simple Object schema validation',
+      tags:  ['validation', 'javascript'],
+      user: user._id  
+    })
+    
+    const response = await request(app)
+      .delete(`/tools/${tool._id}`)
+      .set('Authorization', `Bearer: ${auth.body.token}`)
+
+    expect(response.status).toBe(401);
+    expect(response.body.error).toBe('Only admins can delete any tool');
+
+    done();
+  })
+
   describe('List of tools', () => {
     beforeAll(async () => {
       await Tool.deleteMany({});
