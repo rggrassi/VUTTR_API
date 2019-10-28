@@ -156,7 +156,7 @@ describe('Tool', () => {
     it('it should be possible to filter tools using a tag search', async (done) => {
       const response = await request(app)
         .get('/tools')
-        .query({ tag: 'test,node' })
+        .query({ tags: 'test,node' })
         .set('Authorization', `Bearer: ${token}`)
         .expect('Content-Type', /json/);
       

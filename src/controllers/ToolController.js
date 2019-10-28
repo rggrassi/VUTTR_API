@@ -22,7 +22,7 @@ const create = async (req, res) => {
 };
 
 const index = async (req, res) => {
-  const filter = req.query.tag
+  const filter = req.query.tags
     ? {
         tags: {
           $in: req.query.tag.split(',')

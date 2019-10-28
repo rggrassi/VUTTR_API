@@ -1,11 +1,16 @@
 {
   "name": "vuttr",
   "version": "0.0.1",
+  "description": "VUTTR API [Very Useful Tools to Remember]",
   "main": "index.js",
   "license": "MIT",
   "scripts": {
     "dev": "cross-env NODE_ENV=development nodemon src/index.js",
     "test": "cross-env NODE_ENV=test jest --detectOpenHandles --forceExit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rggrassi/vuttr.git"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
