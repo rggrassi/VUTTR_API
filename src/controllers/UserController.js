@@ -63,7 +63,7 @@ const update = async (req, res) => {
    * Checks if the user is trying to update data from other users. 
    * Because only admin users have this permission.
    */
-  if (req.user.role === 'user' && req.user.id !== req.params.id) {
+  if (req.user.role === 'user' && req.user._id !== req.params.id) {
     return res.status(401).json({ error: 'Only admins can update any user' });
   }
 

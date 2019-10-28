@@ -1,0 +1,306 @@
+swagger: "2.0"
+info:
+  description: "This document is for the VUTTR API [Very useful tools to remember]. It is a simple repository for managing tools with their names, links, descriptions and tags."
+  version: "0.0.1"
+  title: "Vuttr API"
+  termsOfService: "http://swagger.io/terms/"
+  contact:
+    email: "rgrassi1@gmail.com"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: "localhost:3000"
+basePath: "/"
+tags:
+- name: "tool"
+  description: "Operations about tool"
+- name: "user"
+  description: "Operations about user"
+- name: "session"
+  description: "Create a new session for a user"
+schemes:
+- "https"
+- "http"
+paths:
+  /tools:
+    get: 
+      tags:
+      - "tool"
+      summary: "Returns all registered tools"
+      produces: 
+      - "application/json"
+      parameters:
+      - name: "tags"
+        in: "query"
+        description: "Tags to filter by"
+        required: false
+        type: "array"
+        items:
+          type: "string"
+        collectionFormat: "multi"
+      responses:
+        200: 
+          description: ""
+          schema: 
+            type: "array"
+            items:
+              type: "object"
+              properties:
+                _id:
+                  type: "string"
+                title:
+                  type: "string"
+                link:
+                  type: "string"
+                description:
+                  type: "string"
+                tags:
+                  type: "array"
+                  items:
+                    type: "string"
+      security:
+      - api_key:
+        - user
+        - admin
+    post:
+      tags:
+      - "tool"
+      summary: "Add a new tool"
+      operationId: "addTool"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Tool we want to register"
+        required: true
+        schema:
+          $ref: "#/definitions/Tool"
+      responses:
+        201:
+          description: "Tool created"
+          schema: 
+            type: "object"
+            properties:
+              _id:
+                type: "string"
+              title:
+                type: "string"
+              link:
+                type: "string"
+              description:
+                type: "string"
+              tags:
+                type: "array"
+                items:
+                  type: "string"
+      security:
+      - api_key:
+        - user
+        - admin
+    delete:
+      tags:
+      - "tool"
+      summary: "Deletes a tool"
+      operationId: "deleteTool"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "Tool id to delete"
+        required: true
+        type: "string"
+      responses:
+        401:
+          description: "Only admins can delete any tool"
+        404:
+          description: "Tool not found"
+          schema:
+            type: "object"
+            properties: 
+              error:
+                type: "string"
+        204:
+          description: ""
+      security:
+      - api_key:
+        - user
+        - admin
+  /users:
+    post:
+      tags:
+      - "user"
+      summary: "Create user"
+      operationId: "createUser"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "body"
+        in: "body"
+        description: "User we want create"
+        required: true
+        schema:
+          $ref: "#/definitions/User"
+      responses:
+        201:
+          description: "User created"
+          schema:
+            type: "object"
+            properties:
+              _id:
+                type: "string"
+              name:
+                type: "string"
+              email: 
+                type: "string"
+              role:
+                type: "string"
+        400: 
+          description: "Validation fails || User not available || Bad request"
+
+    put:
+      tags:
+      - "user"
+      summary: "Update user"
+      operationId: "updateUser"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "User id to delete"
+        required: true
+        type: "string"
+        
+      - name: "body"
+        in: "body"
+        description: "User we want update"
+        required: true
+        schema:
+          type: "object"
+          properties: 
+            name:
+              type: "string"
+            email:
+              type: "string"
+            oldPassword: 
+              type: "string"
+            password:
+              type: "string"
+            confirmPassword:
+              type: "string"
+            role:
+              type: "string"
+      responses:
+        200:
+          description: ""
+          schema:
+            type: "object"
+            properties:
+              _id:
+                type: "string"
+              name:
+                type: "string"
+              email: 
+                type: "string"
+              role:
+                type: "string"
+        400: 
+          description: "Validation fails - Bad request"
+        404:
+          description: "User not found"
+        401:
+          description: "Only admins can update any user || Wrong credentials"
+      security:
+      - api_key:
+        - user
+        - admin
+        
+  /session:
+    post:
+      tags:
+      - "session"
+      summary: "Create a new session"
+      operationId: "createSession"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "body"
+        in: "body"
+        description: "User we want to authenticate"
+        required: true
+        schema:
+          $ref: "#/definitions/Session"
+      responses:
+        200:
+          description: ""
+          schema:
+            type: "object"
+            properties:
+              user: 
+                type: "object"
+                properties:
+                  id:
+                    type: "string"
+                  name:
+                    type: "string"
+                  email:
+                    type: "string"
+                  role: 
+                    type: "string"
+              token: 
+                type: "string"
+        400:
+          description: "Validation fails || Bad request"
+        404:
+          description: "Could not find your account"
+        401:
+          description: "Wrong credentials"
+securityDefinitions:
+  api_key:
+    type: "apiKey"
+    name: "authorization"
+    in: "header"
+    scopes:
+      user: user
+      admin: admin
+definitions:
+  Tool:
+    type: "object"
+    properties:
+      title:
+        type: "string"
+      link:
+        type: "string"
+      description: 
+        type: "string"
+      user:
+        type: "string"
+      tags:
+        type: "array"
+        items: 
+          type: "string"
+  User:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      email:
+        type: "string"
+      password:
+        type: "string"
+      role:
+        type: "string"
+        enum:
+          - "user"
+          - "admin"
+  Session:
+    type: "object"
+    properties:
+      email:
+        type: "string"
+      password:
+        type: "string"

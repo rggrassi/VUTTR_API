@@ -8,6 +8,7 @@ const create = async (req, res) => {
     title: Yup.string().required(),
     link: Yup.string().required(),
     description: Yup.string().required(),
+    tags: Yup.array()
   });
 
   const { value, errors } = await validate(req.body, schema);
@@ -40,7 +41,7 @@ const index = async (req, res) => {
 const remove = async(req, res) => {  
   const tool = await Tool.findById(req.params.id).populate('user');      
   if (!tool) {
-    return res.status(404).send();
+    return res.status(404).json({ error: 'Tool not found' });
   }
   if (req.user.role !== 'admin') {
     if (!Types.ObjectId(tool.user._id).equals(Types.ObjectId(req.user.id))) {

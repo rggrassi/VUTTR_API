@@ -1,7 +1,6 @@
 require('../src/bootstrap');
 const auth = require('../src/middlewares/auth');
 const jwt = require("jsonwebtoken");
-const supertest = require('supertest');
 
 describe('Auth token', () => {
   const mockResponse = () => {
@@ -66,6 +65,4 @@ describe('Auth token', () => {
     expect(res.status).toHaveBeenCalledWith(401)
     expect(res.json).toHaveBeenCalledWith({ error: 'Token not valid' });      
   })
-
-
 })

@@ -30,11 +30,11 @@ const create = async (req, res) => {
     return res.status(401).json({ error: 'Wrong credentials' });
   }
 
-  const { id, name, role } = user;
+  const { _id, name, role } = user;
 
   return res.json({
-    user: { id, name, email, role },
-    token: jwt.sign({ id, name, email, role }, process.env.APP_SECRET, {
+    user: { _id, name, email, role },
+    token: jwt.sign({ _id, name, email, role }, process.env.APP_SECRET, {
       expiresIn: "7d"
     })
   });

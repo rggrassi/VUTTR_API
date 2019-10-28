@@ -1,7 +1,7 @@
 const request = require('supertest');
-const app = require('../src/app');
-const Tool = require('../src/models/Tool');
-const User = require('../src/models/User');
+const app = require('../../src/app');
+const Tool = require('../../src/models/Tool');
+const User = require('../../src/models/User');
 
 describe('Tool', () => {   
   let token = '';

@@ -1,6 +1,6 @@
 const request = require('supertest');
-const app = require('../src/app');
-const User = require('../src/models/User');
+const app = require('../../src/app');
+const User = require('../../src/models/User');
 
 describe('Session', () => {
   beforeEach(async () => {
