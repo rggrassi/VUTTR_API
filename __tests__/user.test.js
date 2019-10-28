@@ -107,7 +107,7 @@ describe('User', () => {
       expect(response.body.message).toBe('Validation fails');    
     })  
 
-    it('should return 404 if user is not found by [id]', async() => {
+    it('should return 404 if the user is not found for update', async() => {
       const response = await request(app)
         .put('/users/000000000000ffffffffffff')
         .set('Authorization', `Bearer: ${token}`)

@@ -25,7 +25,7 @@ const index = async (req, res) => {
   const filter = req.query.tags
     ? {
         tags: {
-          $in: req.query.tag.split(',')
+          $in: req.query.tags.split(',')
         }
       }
     : {};
@@ -38,8 +38,11 @@ const index = async (req, res) => {
 };
 
 const remove = async(req, res) => {  
+  const tool = await Tool.findById(req.params.id).populate('user');      
+  if (!tool) {
+    return res.status(404).send();
+  }
   if (req.user.role !== 'admin') {
-    const tool = await Tool.findById(req.params.id).populate('user');      
     if (!Types.ObjectId(tool.user._id).equals(Types.ObjectId(req.user.id))) {
       return res.status(401).json({ error: 'Only admins can delete any tool' });
     }

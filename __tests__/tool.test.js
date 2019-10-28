@@ -79,7 +79,7 @@ describe('Tool', () => {
     done();
   })
 
-  it('the user should not be able to remove a tool that has not been registered.', async (done) => {
+  it('the user should not be able to remove a tool that has not been registered', async (done) => {
     await User.create({
       name: 'Lee Marvin',
       email: 'lee.marvin@email.com',
@@ -108,6 +108,16 @@ describe('Tool', () => {
     expect(response.status).toBe(401);
     expect(response.body.error).toBe('Only admins can delete any tool');
 
+    done();
+  })
+
+  it('should return 404 if the tool is not found for removal', async (done) => {
+    const response = await request(app)
+      .delete('/tools/000000000000ffffffffffff')
+      .set('Authorization', `Bearer: ${token}`)
+    
+    expect(response.status).toBe(404);
+    
     done();
   })
 
@@ -153,7 +163,7 @@ describe('Tool', () => {
       done();
     })
   
-    it('it should be possible to filter tools using a tag search', async (done) => {
+    it('should be able to filter tools using a tag search', async (done) => {
       const response = await request(app)
         .get('/tools')
         .query({ tags: 'test,node' })
