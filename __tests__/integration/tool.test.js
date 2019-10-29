@@ -106,7 +106,7 @@ describe('Tool', () => {
       .set('Authorization', `Bearer: ${auth.body.token}`)
 
     expect(response.status).toBe(401);
-    expect(response.body.error).toBe('Only admins can delete any tool');
+    expect(response.body.message).toBe('Only admins can delete any tool');
 
     done();
   })

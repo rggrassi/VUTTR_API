@@ -16,10 +16,11 @@ const create = async (req, res) => {
     return res.status(400).json(errors);
   }
 
-  value.user = req.user.id;
+  value.user = req.user._id;
 
-  const tool = await Tool.create(value);
-  return res.status(201).json(tool);
+  const { _id, title, link, description, tags } = await Tool.create(value);
+  
+  return res.status(201).json({ _id, title, link, description, tags });
 };
 
 const index = async (req, res) => {
@@ -33,7 +34,7 @@ const index = async (req, res) => {
 
   const tools = await Tool
     .find(filter)
-    .populate('user');
+    .populate('user', ['name', 'email']);
 
   return res.json(tools);
 };
@@ -41,11 +42,11 @@ const index = async (req, res) => {
 const remove = async(req, res) => {  
   const tool = await Tool.findById(req.params.id).populate('user');      
   if (!tool) {
-    return res.status(404).json({ error: 'Tool not found' });
+    return res.status(404).json({ message: 'Tool not found' });
   }
   if (req.user.role !== 'admin') {
-    if (!Types.ObjectId(tool.user._id).equals(Types.ObjectId(req.user.id))) {
-      return res.status(401).json({ error: 'Only admins can delete any tool' });
+    if (!Types.ObjectId(tool.user._id).equals(Types.ObjectId(req.user._id))) {
+      return res.status(401).json({ message: 'Only admins can delete any tool' });
     }
   }    
   

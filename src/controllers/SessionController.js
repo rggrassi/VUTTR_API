@@ -23,11 +23,11 @@ const create = async (req, res) => {
   const user = await User.findOne({ email });
 
   if (!user) {
-    return res.status(404).json({ error: 'Could not find your account' });
+    return res.status(404).json({ message: 'Could not find your account' });
   }
 
   if (!(await user.checkPassword(password))) {
-    return res.status(401).json({ error: 'Wrong credentials' });
+    return res.status(401).json({ message: 'Wrong credentials' });
   }
 
   const { _id, name, role } = user;

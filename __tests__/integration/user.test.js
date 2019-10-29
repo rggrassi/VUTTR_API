@@ -59,7 +59,7 @@ describe('User', () => {
       .expect('Content-Type', /json/);
 
     expect(response.status).toBe(400); 
-    expect(response.body.error).toBe('User not available');
+    expect(response.body.message).toBe('User not available');
   })
 
   describe('User authenticated', () => {
@@ -118,7 +118,7 @@ describe('User', () => {
         .expect('Content-Type', /json/);
 
         expect(response.status).toBe(404);
-        expect(response.body.error).toBe('User not found');    
+        expect(response.body.message).toBe('User not found');    
     })
 
     it('should not be able to update other records without administrator role', async (done) => {
@@ -133,7 +133,7 @@ describe('User', () => {
         .expect('Content-Type', /json/);
 
         expect(response.status).toBe(401);
-        expect(response.body.error).toBe('Only admins can update any user');    
+        expect(response.body.message).toBe('Only admins can update any user');    
 
         done();
     })
@@ -149,7 +149,7 @@ describe('User', () => {
         .expect('Content-Type', /json/);
   
       expect(response.status).toBe(400); 
-      expect(response.body.error).toBe('User not available');
+      expect(response.body.message).toBe('User not available');
 
       done();
     })
@@ -166,7 +166,7 @@ describe('User', () => {
         .expect('Content-Type', /json/);
   
         expect(response.status).toBe(401);
-        expect(response.body.error).toBe('Wrong credentials')
+        expect(response.body.message).toBe('Wrong credentials')
 
         done();
     })

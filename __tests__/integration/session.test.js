@@ -25,7 +25,7 @@ describe('Session', () => {
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('token');
     expect(response.body).toHaveProperty('user');
-    expect(response.body.user).toHaveProperty('id');
+    expect(response.body.user).toHaveProperty('_id');
     expect(response.body.user).toHaveProperty('name');
     expect(response.body.user).toHaveProperty('email');
     expect(response.body.user).toHaveProperty('role');
@@ -58,7 +58,7 @@ describe('Session', () => {
       });
 
       expect(response.status).toBe(404);
-      expect(response.body.error).toBe('Could not find your account');    
+      expect(response.body.message).toBe('Could not find your account');    
 
       done();
   })
@@ -78,6 +78,6 @@ describe('Session', () => {
       });
 
       expect(response.status).toBe(401);
-      expect(response.body.error).toBe('Wrong credentials');    
+      expect(response.body.message).toBe('Wrong credentials');    
   })
 })

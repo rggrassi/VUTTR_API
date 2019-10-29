@@ -20,7 +20,8 @@ const UserSchema = mongoose.Schema({
   }
 }, 
 { 
-  timestamps: true
+  timestamps: true,
+  versionKey: false
 });
 
 UserSchema.methods.toJSON = function() {

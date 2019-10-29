@@ -9,7 +9,7 @@ info:
   license:
     name: "Apache 2.0"
     url: "http://www.apache.org/licenses/LICENSE-2.0.html"
-host: "localhost:3000"
+host: "localhost:3333"
 basePath: "/"
 tags:
 - name: "tool"
@@ -58,6 +58,19 @@ paths:
                   type: "array"
                   items:
                     type: "string"
+                user:
+                  type: "object"
+                  properties:
+                    _id:
+                      type: "string"
+                    name:
+                      type: "string"
+                    email:
+                      type: "string"
+                createdAt:
+                  type: "string"
+                updatedAt:
+                  type: "string"
       security:
       - api_key:
         - user
@@ -100,6 +113,8 @@ paths:
       - api_key:
         - user
         - admin
+        
+  /tools/{id}:
     delete:
       tags:
       - "tool"
@@ -108,27 +123,33 @@ paths:
       produces:
       - "application/json"
       parameters:
-      - name: "id"
-        in: "path"
-        description: "Tool id to delete"
-        required: true
-        type: "string"
+        - name: "id"
+          in: "path"
+          description: "Tool id to delete"
+          required: true
+          type: "string"
       responses:
         401:
           description: "Only admins can delete any tool"
+          schema:
+            type: "object"
+            properties: 
+              message:
+                type: "string"
         404:
           description: "Tool not found"
           schema:
             type: "object"
             properties: 
-              error:
+              message:
                 type: "string"
         204:
-          description: ""
+          description: "No content"
       security:
       - api_key:
         - user
         - admin
+        
   /users:
     post:
       tags:
@@ -158,9 +179,24 @@ paths:
                 type: "string"
               role:
                 type: "string"
+              createdAt:
+                type: "string"
+              updatedAt:
+                type: "string"  
         400: 
-          description: "Validation fails || User not available || Bad request"
+          description: "Validation fails || User not available"
+          schema:
+            type: "object"
+            properties:
+              message:
+                type: "string"
+              errors:
+                type: "object"
+      security:
+      - api_key:
+        - user
 
+  /users/{id}:
     put:
       tags:
       - "user"
@@ -194,6 +230,7 @@ paths:
               type: "string"
             role:
               type: "string"
+
       responses:
         200:
           description: ""
@@ -209,11 +246,28 @@ paths:
               role:
                 type: "string"
         400: 
-          description: "Validation fails - Bad request"
+          description: "Validation fails"
+          schema:
+            type: "object"
+            properties:
+              message:
+                type: "string"
+              errors:
+                type: "object"
         404:
           description: "User not found"
+          schema:
+            type: "object"
+            properties:
+              message:
+                type: "string"
         401:
           description: "Only admins can update any user || Wrong credentials"
+          schema:
+            type: "object"
+            properties:
+              message:
+                type: "string"
       security:
       - api_key:
         - user
@@ -255,10 +309,27 @@ paths:
                 type: "string"
         400:
           description: "Validation fails || Bad request"
+          schema:
+            type: "object"
+            properties:
+              message:
+                type: "string"
+              errors:
+                type: "object"
         404:
           description: "Could not find your account"
+          schema:
+            type: "object"
+            properties:
+              message:
+                type: "string"
         401:
           description: "Wrong credentials"
+          schema:
+            type: "object"
+            properties:
+              message:
+                type: "string"
 securityDefinitions:
   api_key:
     type: "apiKey"
@@ -277,12 +348,14 @@ definitions:
         type: "string"
       description: 
         type: "string"
-      user:
-        type: "string"
       tags:
         type: "array"
         items: 
           type: "string"
+    required: 
+      - title
+      - link
+      - description
   User:
     type: "object"
     properties:
@@ -296,7 +369,10 @@ definitions:
         type: "string"
         enum:
           - "user"
-          - "admin"
+    required:
+      - name
+      - email
+      - password
   Session:
     type: "object"
     properties:
@@ -304,3 +380,6 @@ definitions:
         type: "string"
       password:
         type: "string"
+    required:
+      - email
+      - password

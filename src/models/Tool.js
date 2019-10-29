@@ -22,7 +22,8 @@ const ToolSchema = mongoose.Schema({
   tags: [String]  
 },
 { 
-  timestamps: true
+  timestamps: true,
+  versionKey: false
 });
 
 module.exports = mongoose.model("Tool", ToolSchema);
