@@ -45,11 +45,11 @@ describe('Auth token', () => {
     
     auth(req, res, next);
       
-    expect(res.status).toHaveBeenCalledWith(401)
-    expect(res.json).toHaveBeenCalledWith({ error: 'Token not provided' });      
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith({ message: 'Token not provided' });      
   })
 
-  it('it should not be possible to obtain authorization with an invalid token', () => {
+  it('should not be able to obtain authorization with an invalid token', () => {
     const res = mockResponse();
     const req = { 
       headers: {
@@ -62,7 +62,7 @@ describe('Auth token', () => {
     
     auth(req, res, next);
       
-    expect(res.status).toHaveBeenCalledWith(401)
-    expect(res.json).toHaveBeenCalledWith({ error: 'Token not valid' });      
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith({ message: 'Token not valid' });      
   })
 })

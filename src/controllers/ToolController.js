@@ -32,9 +32,7 @@ const index = async (req, res) => {
       }
     : {};
 
-  const tools = await Tool
-    .find(filter)
-    .populate('user', ['name', 'email']);
+  const tools = await Tool.find(filter).populate('user', ['name', 'email']);
 
   return res.json(tools);
 };

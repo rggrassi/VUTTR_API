@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 module.exports = (req, res, next) => {
     const { authorization } = req.headers;
     if (!authorization) {
-        return res.status(401).json({ error: 'Token not provided' })
+        return res.status(401).json({ message: 'Token not provided' })
     }
     const [bearer, token] = authorization.split(' ');
     try {
@@ -11,6 +11,6 @@ module.exports = (req, res, next) => {
         req.user = { _id, name, email, role };
         return next();
     } catch (error) {
-        res.status(401).json({ error: 'Token not valid' })
+        res.status(401).json({ message: 'Token not valid' })
     }
 }
