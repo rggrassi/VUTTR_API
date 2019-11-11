@@ -4,9 +4,11 @@ const auth = require('../middlewares/auth');
 const SessionController = require('../controllers/SessionController');
 const UserController = require('../controllers/UserController');
 const ToolController = require('../controllers/ToolController');
+const ForgotPasswordController = require('../controllers/ForgotPasswordController');
 
 router.post('/users', UserController.create);
 router.post('/session', SessionController.create);
+router.post('/forgot-password', ForgotPasswordController.create);
 
 router.use(auth);
 
