@@ -8,7 +8,9 @@ const ForgotPasswordController = require('../controllers/ForgotPasswordControlle
 
 router.post('/users', UserController.create);
 router.post('/session', SessionController.create);
-router.post('/forgot-password', ForgotPasswordController.create);
+
+router.post('/forgot-password', ForgotPasswordController.store);
+router.put('/forgot-password', ForgotPasswordController.update);
 
 router.use(auth);
 
