@@ -1,23 +1,10 @@
 const User = require('../models/User');
 const crypto = require('crypto');
-const Yup = require('yup');
-const { validate } = require('../utils/validation');
 const sendMail = require('../lib/Mail');
 const isAfter = require('date-fns/isAfter');
 const subDays = require('date-fns/subDays');
 
 const store = async (req, res) => {
-  const schema = Yup.object().shape({
-    email: Yup.string()
-      .email()
-      .required()
-  });
-
-  const { value, errors } = await validate(req.body, schema);
-  if (errors) {
-    return res.status(400).json(errors);
-  }
-
   const user = await User.findOne({ email: value.email });
   if (!user) {
     return res.status(404).json({ message: 'User not found' });
@@ -41,20 +28,7 @@ const store = async (req, res) => {
   return res.status(204).send();
 };
 
-const update = async (req, res) => {
-  
-  const schema = Yup.object().shape({
-    token: Yup.string().required(),
-    password: Yup.string()
-      .min(6)
-      .required()
-  });
-
-  const { value, errors } = await validate(req.body, schema);
-  if (errors) {
-    return res.status(400).json(errors);
-  }
-
+const update = async (req, res) => {  
   const user = await User.findOne({ token: value.token });
   if (!user) {
     return res.status(400).json({ message: 'Token not valid' });

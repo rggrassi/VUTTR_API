@@ -1,24 +1,10 @@
 const Tool = require('../models/Tool');
-const Yup = require('yup');
-const { validate } = require('../utils/validation');
 const { Types } = require('mongoose');
 
 const create = async (req, res) => {
-  const schema = Yup.object().shape({
-    title: Yup.string().required(),
-    link: Yup.string().required(),
-    description: Yup.string().required(),
-    tags: Yup.array()
-  });
+  req.value.body.user = req.user._id;
 
-  const { value, errors } = await validate(req.body, schema);
-  if (errors) {
-    return res.status(400).json(errors);
-  }
-
-  value.user = req.user._id;
-
-  const { _id, title, link, description, tags } = await Tool.create(value);
+  const { _id, title, link, description, tags } = await Tool.create(req.value.body);
   
   return res.status(201).json({ _id, title, link, description, tags });
 };

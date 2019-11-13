@@ -1,55 +1,22 @@
 const User = require("../models/User");
-const Yup = require("yup");
-const { validate } = require("../utils/validation");
 
 const create = async (req, res) => {
-  const schema = Yup.object().shape({
-    name: Yup.string().required(),
-    email: Yup.string()
-      .email()
-      .required(),
-    password: Yup.string()
-      .required()
-      .min(6),
-    role: Yup.string()      
-  });
-
-  const { value, errors } = await validate(req.body, schema);
-  if (errors) {
-    return res.status(400).json(errors);
-  }  
-
-  const emailExists = await User.findOne({ email: value.email });
+  const { email } = req.value.body;
+  const emailExists = await User.findOne({ email });
   if (emailExists) {
     return res.status(400).json({ message: 'User not available' });
   }    
   
-  value.role = 'user';
-  const user = await User.create(value);  
+  req.value.body.role = 'user';
+  const user = await User.create(req.value.body);  
+
+  
 
   return res.status(201).json(user);
 };
 
 const update = async (req, res) => {
-  const schema = Yup.object().shape({
-    name: Yup.string(),
-    email: Yup.string().email(),
-    oldPassword: Yup.string().min(6),
-    password: Yup.string()
-      .min(6)
-      .when('oldPassword', (oldPassword, field) =>
-        oldPassword ? field.required() : field
-      ),
-    confirmPassword: Yup.string().when('password', (password, field) =>
-      password ? field.required().oneOf([Yup.ref('password')]) : field
-    ),
-    role: Yup.string()    
-  });
-
-  const { errors, value } = await validate(req.body, schema);
-  if (errors) {
-    return res.status(400).json(errors);
-  }
+  const { name, email, password, oldPassword, role } = req.value.body;
 
   /**
    * Checks if [id] passed by parameter matches the registered user
@@ -67,28 +34,25 @@ const update = async (req, res) => {
     return res.status(401).json({ message: 'Only admins can update any user' });
   }
 
-  /**
-   * Force the role to ['user'] if any ordinary user tries to upgrade their role to admin.
-   */
-  if (req.user.role === 'user') {
-    value.role = 'user'
-  }
-
-  if (value.email && value.email !== user.email) {
-    const userExists = await User.findOne({ email: value.email });
+  if (email && email !== user.email) {
+    const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({ message: 'User not available' });
     }
   }
 
-  if (req.body.oldPassword && !(await user.checkPassword(req.body.oldPassword))) {
+  if (oldPassword && !(await user.checkPassword(oldPassword))) {
     return res.status(401).json({ message: 'Wrong credentials' });
   }
 
-  user.name = value.name || user.name;
-  user.email = value.email || user.email;
-  user.password = value.password || user.password;
-  user.role = value.role || user.role; 
+  user.name = name || user.name;
+  user.email = email || user.email;
+  user.password = password || user.password;
+  if (req.user.role === 'user') {
+    user.role = 'user'; 
+  } else {
+    user.role = role || user.role; 
+  }
 
   const updatedUser = await user.save();
   return res.json(updatedUser);
