@@ -9,6 +9,7 @@ const ToolController = require('../controllers/ToolController');
 const ForgotPasswordController = require('../controllers/ForgotPasswordController');
 
 router.post('/users', validate(schemas.userCreate), UserController.create);
+
 router.post('/session', validate(schemas.session), SessionController.create);
 
 router.post('/forgot-password', validate(schemas.forgotStore), ForgotPasswordController.store);

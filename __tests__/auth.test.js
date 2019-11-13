@@ -1,5 +1,5 @@
 require('../src/bootstrap');
-const auth = require('../src/middlewares/auth');
+const auth = require('../src/helpers/route/auth');
 const jwt = require("jsonwebtoken");
 
 describe('Auth token', () => {

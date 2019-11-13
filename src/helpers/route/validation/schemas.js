@@ -1,3 +1,5 @@
+const Yup = require('yup');
+
 module.exports = {
   session: Yup.object().shape({
     email: Yup.string()
