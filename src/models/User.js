@@ -24,6 +24,10 @@ const UserSchema = mongoose.Schema({
   token: {
     type: String,
   },
+  verified: {
+    type: Boolean,
+    default: false
+  },
   token_created_at: {
     type: Date
   }

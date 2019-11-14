@@ -1,9 +1,9 @@
 const nodemailerhbs = require('nodemailer-express-handlebars')
 const exphbs = require('express-handlebars');
-const Mail = require('../config/mail');
+const mail = require('../config/mail');
 const { resolve } = require('path');
 
-const transporter = Mail.createTransport();
+const transporter = mail.createTransport();
 
 const viewPath = resolve(__dirname, '..', 'views', 'emails');
 transporter.use('compile', nodemailerhbs({
@@ -18,5 +18,5 @@ transporter.use('compile', nodemailerhbs({
 }));
 
 module.exports = function sendMail(email) {
-  return transporter.sendMail({ ...Mail.default, ...email });
+  return transporter.sendMail({ ...mail.default, ...email });
 }

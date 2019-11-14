@@ -48,5 +48,13 @@ module.exports = {
     password: Yup.string()
       .min(6)
       .required()
+  }),
+  verifyMailStore: Yup.object().shape({
+    email: Yup.string()
+      .email()
+      .required()
+  }),
+  verifyMailUpdate: Yup.object().shape({
+    token: Yup.string().required()
   })
 };

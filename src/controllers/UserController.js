@@ -1,6 +1,5 @@
 const User = require('../models/User');
 const crypto = require('crypto');
-const sendMail = require('../lib/Mail');
 
 module.exports = {
   create: async (req, res) => {
@@ -9,21 +8,11 @@ module.exports = {
     if (emailExists) {
       return res.status(400).json({ message: 'User not available' });
     }    
-    
-    req.value.body.role = 'user';
-    req.value.body.token = crypto.randomBytes(32).toString('hex');
-    req.value.body.token_created_at = new Date();
-    const user = await User.create(req.value.body);  
-    
-    await sendMail({
-      to: `${user.name} <${user.email}>`,
-      subject: 'Check your email address',
-      template: 'verify_email',
-      context: {
-        link: `${req.body.redirect_url}?token=${req.value.body.token}`
-      }   
-    })
 
+    req.value.body.role = 'user';
+
+    const user = await User.create(req.value.body);      
+    
     return res.status(201).json(user);
   },
   update: async (req, res) => {
