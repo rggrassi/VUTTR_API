@@ -6,7 +6,8 @@ const subDays = require('date-fns/subDays');
 
 module.exports = {
   store: async (req, res) => {
-    const user = await User.findOne({ email: value.email });
+    const { email } = req.value.body
+    const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -16,7 +17,7 @@ module.exports = {
   
     await user.save();
   
-    await sendMail({
+    /*await sendMail({
       to: `${user.name} <${user.email}>`,
       subject: 'Reset VUTTR password',
       template: 'forgot_password',
@@ -24,11 +25,12 @@ module.exports = {
         username: user.name,
         link: `${req.body.redirect_url}?token=${user.token}`
       }
-    });  
+    });*/  
     return res.status(204).send();
   },
   update: async (req, res) => {  
-    const user = await User.findOne({ token: value.token });
+    const { token, password } = req.value.body;
+    const user = await User.findOne({ token });
     if (!user) {
       return res.status(400).json({ message: 'Token not valid' });
     }
@@ -43,7 +45,7 @@ module.exports = {
   
     user.token = null;
     user.token_created_at = null;
-    user.password = value.password;
+    user.password = password;
   
     await user.save();
   

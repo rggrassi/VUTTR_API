@@ -18,7 +18,7 @@ describe('User', () => {
     await User.deleteMany({});
   })
 
-  it('should be able to register', async () => {
+  it('should be able to register', async(done) => {
     const response = await request(app)
       .post('/users')
       .send(userAux)
@@ -28,29 +28,36 @@ describe('User', () => {
     expect(response.body).toHaveProperty('role');
     expect(response.body.role).toBe('user');
     expect(response.status).toBe(201);
+
+    done();
   })
 
-  it('should not be able to register with invalid data', async () => {
+  it('should not be able to register with invalid data', async(done) => {
     const response = await request(app)
       .post('/users')
       .send({
         name: '',
         email: 'rgrassi1$email.com',
         password: '12345',        
-      })  
+      }) 
+      .expect('Content-Type', /json/); 
 
     expect(response.status).toBe(400);
     expect(response.body.message).toBe('Validation fails');    
+
+    done();
   })
 
-  it('should encrypt the password when a new user created or password changed', async () => {
+  it('should encrypt the password when a new user created or password changed', async(done) => {
     const user = await User.create(userAux);
     const compareHash = await user.checkPassword(userAux.password);
 
     expect(compareHash).toBe(true);
+
+    done();
   })
 
-  it('should not be able register with email already used', async () => {    
+  it('should not be able register with email already used', async(done) => {    
     await User.create(userAux);  
 
     const response = await request(app)
@@ -60,6 +67,8 @@ describe('User', () => {
 
     expect(response.status).toBe(400); 
     expect(response.body.message).toBe('User not available');
+
+    done();
   })
 
   describe('User authenticated', () => {
@@ -94,7 +103,7 @@ describe('User', () => {
       done();
     })
 
-    it('should not be able to update with invalid data', async () => {
+    it('should not be able to update with invalid data', async(done) => {
       const response = await request(app)
         .put(`/users/${userNew._id}`)
         .set('Authorization', `Bearer: ${token}`)
@@ -105,9 +114,11 @@ describe('User', () => {
   
       expect(response.status).toBe(400);
       expect(response.body.message).toBe('Validation fails');    
+
+      done();
     })  
 
-    it('should return 404 if the user is not found for update', async() => {
+    it('should return 404 if the user is not found for update', async(done) => {
       const response = await request(app)
         .put('/users/000000000000ffffffffffff')
         .set('Authorization', `Bearer: ${token}`)
@@ -118,7 +129,9 @@ describe('User', () => {
         .expect('Content-Type', /json/);
 
         expect(response.status).toBe(404);
-        expect(response.body.message).toBe('User not found');    
+        expect(response.body.message).toBe('User not found');
+
+        done();
     })
 
     it('should not be able to update other records without administrator role', async (done) => {
