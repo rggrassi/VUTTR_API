@@ -17,7 +17,7 @@ describe('Verify Mail', () => {
  
   it('should be able to request verification of the registration email', async (done) => {
     const response = await request(app)
-      .post('/verify-mail')
+      .post('/account-confirmation')
       .send({ email: user.email, redirect_url: 'https://vuttr.com.br' });
 
     expect(response.status).toBe(204);
@@ -27,7 +27,7 @@ describe('Verify Mail', () => {
 
   it('should not be able to verify your account without first registering with the app', async (done) => {
     const response = await request(app)
-      .post('/verify-mail')
+      .post('/account-confirmation')
       .send({ email: 'user404@email.com' });
 
     expect(response.status).toBe(404);
@@ -42,7 +42,7 @@ describe('Verify Mail', () => {
     await user.save();
 
     const response = await request(app)
-      .put('/verify-mail')
+      .put('/account-confirmation')
       .send({ token: user.token });
 
     expect(response.status).toBe(204); 
@@ -56,7 +56,7 @@ describe('Verify Mail', () => {
     await user.save();
 
     const response = await request(app)
-      .put('/verify-mail')
+      .put('/account-confirmation')
       .send({ token: 'invalid-token' });
 
     expect(response.status).toBe(400);
@@ -71,7 +71,7 @@ describe('Verify Mail', () => {
     await user.save();
 
     const response = await request(app)
-      .put('/verify-mail')
+      .put('/account-confirmation')
       .send({ token: user.token });
 
     expect(response.status).toBe(401);

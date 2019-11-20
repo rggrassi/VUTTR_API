@@ -1,8 +1,8 @@
 const User = require('../models/User');
 const crypto = require('crypto');
-const sendMail = require('../lib/Mail');
 const isAfter = require('date-fns/isAfter');
 const subDays = require('date-fns/subDays');
+const Queue = require('../lib/Queue');
 
 module.exports = {
   store: async (req, res) => {
@@ -17,14 +17,7 @@ module.exports = {
 
     await user.save();
 
-    await sendMail({
-      to: `${user.name} <${user.email}>`,
-      subject: "Check your email address",
-      template: "verify_email",
-      context: {
-        link: `${req.body.redirect_url}?token=${req.value.body.token}`
-      }
-    });
+    
 
     return res.status(204).send();
   },

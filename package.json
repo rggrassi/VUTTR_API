@@ -6,6 +6,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "cross-env NODE_ENV=development nodemon src/index.js",
+    "dev-queue": "cross-env NODE_ENV=development nodemon src/queue.js",
     "test": "cross-env NODE_ENV=test jest --detectOpenHandles --forceExit",
     "start": "cross-env NODE_ENV=production node src/index.js"
   },
@@ -15,6 +16,7 @@
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "bull": "^3.12.1",
     "cors": "^2.8.5",
     "date-fns": "^2.7.0",
     "dotenv": "^8.1.0",

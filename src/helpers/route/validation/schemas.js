@@ -49,12 +49,12 @@ module.exports = {
       .min(6)
       .required()
   }),
-  verifyMailStore: Yup.object().shape({
+  accountConfirmationStore: Yup.object().shape({
     email: Yup.string()
       .email()
       .required()
   }),
-  verifyMailUpdate: Yup.object().shape({
+  accountConfirmationUpdate: Yup.object().shape({
     token: Yup.string().required()
   })
 };

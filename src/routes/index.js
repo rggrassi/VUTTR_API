@@ -7,7 +7,7 @@ const SessionController = require('../controllers/SessionController');
 const UserController = require('../controllers/UserController');
 const ToolController = require('../controllers/ToolController');
 const ForgotPasswordController = require('../controllers/ForgotPasswordController');
-const VerifyMailController = require('../controllers/VerifyMailController');
+const AccountConfirmation = require('../controllers/AccountConfirmation');
 
 router.post('/users', validate(schemas.userCreate), UserController.create);
 router.post('/session', validate(schemas.session), SessionController.create);
@@ -15,8 +15,8 @@ router.post('/session', validate(schemas.session), SessionController.create);
 router.post('/forgot-password', validate(schemas.forgotStore), ForgotPasswordController.store);
 router.put('/forgot-password', validate(schemas.forgotUpdate), ForgotPasswordController.update);
 
-router.post('/verify-mail', validate(schemas.verifyMailStore), VerifyMailController.store);
-router.put('/verify-mail', validate(schemas.verifyMailUpdate), VerifyMailController.update);
+router.post('/account-confirmation', validate(schemas.accountConfirmationStore), AccountConfirmation.store);
+router.put('/account-confirmation', validate(schemas.accountConfirmationUpdate), AccountConfirmation.update);
 
 router.use(auth);
 
