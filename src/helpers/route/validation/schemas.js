@@ -44,7 +44,6 @@ module.exports = {
       .required()
   }),
   forgotUpdate: Yup.object().shape({
-    token: Yup.string().required(),
     password: Yup.string()
       .min(6)
       .required()
@@ -54,7 +53,7 @@ module.exports = {
       .email()
       .required()
   }),
-  accountConfirmationUpdate: Yup.object().shape({
+  /*accountConfirmationUpdate: Yup.object().shape({
     token: Yup.string().required()
-  })
+  })*/
 };

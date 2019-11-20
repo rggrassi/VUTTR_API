@@ -1,7 +1,7 @@
 swagger: "2.0"
 info:
   description: "This document is for the VUTTR API [Very useful tools to remember]. It is a simple repository for managing tools with their names, links, descriptions and tags."
-  version: "0.0.1"
+  version: "0.0.2"
   title: "Vuttr API"
   termsOfService: "http://swagger.io/terms/"
   contact:
@@ -114,7 +114,7 @@ paths:
     delete:
       tags:
       - "tool"
-      summary: "Deletes a tool"
+      summary: "Delete a tool"
       operationId: "deleteTool"
       produces:
       - "application/json"
@@ -326,6 +326,150 @@ paths:
             properties:
               message:
                 type: "string"
+  
+  /forgot-password:
+    post:
+      tags: 
+      - "forgot-password"
+      summary: "Request password change"
+      operationId: "requestPasswordChange"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "body"
+        in: "body"
+        description: "User we want to change password"
+        required: true
+        schema:
+          type: "object"
+          properties: 
+            email:
+              type: "string"
+            redirect_url:
+              type: "string"
+      responses:
+        204: 
+          description: "no content"
+        404:
+          description: "User not found"
+          schema:
+            type: "object"
+            properties: 
+              message: 
+                type: "string"
+                
+  /forgot-password/{token}:
+    put:
+      tags:
+      - "forgot-password"
+      summary: "Confirm password change"
+      operationId: "confirmPasswordChange"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "token"
+        in: "path"
+        description: "User token to confirm pasword change"
+        required: true
+        type: "string"      
+      - name: "body"
+        in: "body"
+        description: "User we want to confirm the new password"
+        required: true
+        schema:
+          type: "object"
+          properties: 
+            password:
+              type: "string"
+      responses:
+        204: 
+          description: "no content"
+        400:
+          description: "Token not valid"
+          schema:
+            type: "object"
+            properties: 
+              message: 
+                type: "string"
+        401:
+          description: "Recovery token is expired"
+          schema:
+            type: "object"
+            properties: 
+              message: 
+                type: "string"
+                
+  /account-confirmation:
+    post:
+      tags:
+      - "account-confirmation"
+      summary: "Request new account verification"
+      operationId: "newAccountVerification"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "body"
+        in: "body"
+        description: "User account we want to verify"
+        required: true
+        schema:
+          type: "object"
+          properties: 
+            email:
+              type: "string"
+            redirect_url:
+              type: "string"
+      responses:
+        204: 
+          description: "no content"
+        404:
+          description: "User not found"
+          schema:
+            type: "object"
+            properties: 
+              message: 
+                type: "string"
+                
+  /account-confirmation/{token}:              
+    put:
+      tags:
+      - "account-confirmation"
+      summary: "Confirm the creation of a new account"
+      operationId: "newAccountConfirm"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "token"
+        in: "path"
+        description: "User token to confirm a new account"
+        required: true
+        type: "string"
+      responses:
+        204: 
+          description: "no content"
+        400:
+          description: "Token not valid"
+          schema:
+            type: "object"
+            properties: 
+              message: 
+                type: "string"
+        401:
+          description: "Mail cofirmation token is expired"
+          schema:
+            type: "object"
+            properties: 
+              message: 
+                type: "string"
+              
 securityDefinitions:
   api_key:
     type: "apiKey"

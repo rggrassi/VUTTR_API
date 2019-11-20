@@ -13,10 +13,10 @@ router.post('/users', validate(schemas.userCreate), UserController.create);
 router.post('/session', validate(schemas.session), SessionController.create);
 
 router.post('/forgot-password', validate(schemas.forgotStore), ForgotPasswordController.store);
-router.put('/forgot-password', validate(schemas.forgotUpdate), ForgotPasswordController.update);
+router.put('/forgot-password/:token', validate(schemas.forgotUpdate), ForgotPasswordController.update);
 
 router.post('/account-confirmation', validate(schemas.accountConfirmationStore), AccountConfirmation.store);
-router.put('/account-confirmation', validate(schemas.accountConfirmationUpdate), AccountConfirmation.update);
+router.put('/account-confirmation/:token', validate(schemas.accountConfirmationUpdate), AccountConfirmation.update);
 
 router.use(auth);
 

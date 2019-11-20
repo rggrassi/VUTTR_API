@@ -43,8 +43,8 @@ describe('Forgot Password', () => {
     await user.save();
 
     const response = await request(app)
-      .put('/forgot-password')
-      .send({ token: user.token, password: 'root12345' });
+      .put(`/forgot-password/${user.token}`)
+      .send({ password: 'root12345' });
 
     expect(response.status).toBe(204); 
     
@@ -57,9 +57,10 @@ describe('Forgot Password', () => {
 
     await user.save();
 
+    const token = 'invalid-token';
     const response = await request(app)
-      .put('/forgot-password')
-      .send({ token: 'invalid-token', password: 'root12345' });
+      .put(`/forgot-password/${token}`)      
+      .send({ password: 'root12345' });
 
     expect(response.status).toBe(400);
     expect(response.body.message).toBe('Token not valid');
@@ -74,8 +75,8 @@ describe('Forgot Password', () => {
     await user.save();
 
     const response = await request(app)
-      .put('/forgot-password')
-      .send({ token: user.token, password: 'root12345' });
+      .put(`/forgot-password/${user.token}`)      
+      .send({ password: 'root12345' });
 
     expect(response.status).toBe(401);
     expect(response.body.message).toBe('Recovery token is expired');

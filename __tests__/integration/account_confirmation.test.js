@@ -15,7 +15,7 @@ describe('Verify Mail', () => {
     });
   });
  
-  it('should be able to request verification of the registration email', async (done) => {
+  it('should be able to request new account verification', async (done) => {
     const response = await request(app)
       .post('/account-confirmation')
       .send({ email: user.email, redirect_url: 'https://vuttr.com.br' });
@@ -42,9 +42,7 @@ describe('Verify Mail', () => {
     await user.save();
 
     const response = await request(app)
-      .put('/account-confirmation')
-      .send({ token: user.token });
-
+      .put(`/account-confirmation/${user.token}`);
     expect(response.status).toBe(204); 
     
     done();
@@ -55,9 +53,9 @@ describe('Verify Mail', () => {
     user.token_created_at = new Date();  
     await user.save();
 
+    const token = 'invalid-token';
     const response = await request(app)
-      .put('/account-confirmation')
-      .send({ token: 'invalid-token' });
+      .put(`/account-confirmation/${token}`);
 
     expect(response.status).toBe(400);
     expect(response.body.message).toBe('Token not valid');
@@ -71,8 +69,7 @@ describe('Verify Mail', () => {
     await user.save();
 
     const response = await request(app)
-      .put('/account-confirmation')
-      .send({ token: user.token });
+      .put(`/account-confirmation/${user.token}`);
 
     expect(response.status).toBe(401);
     expect(response.body.message).toBe('Mail cofirmation token is expired');

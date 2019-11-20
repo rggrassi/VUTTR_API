@@ -24,7 +24,8 @@ module.exports = {
   },
 
   update: async (req, res) => {  
-    const { token, password } = req.value.body;
+    const { password } = req.value.body;
+    const { token } = req.params;
     const user = await User.findOne({ token });
     if (!user) {
       return res.status(400).json({ message: 'Token not valid' });
