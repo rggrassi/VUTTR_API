@@ -6,13 +6,15 @@ const subDays = require('date-fns/subDays');
 
 module.exports = {
   store: async (req, res) => {
-    const user = await User.findOne({ email: value.email });
+    const { email } = req.value.body
+    const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
     user.token = crypto.randomBytes(32).toString('hex');
     user.token_created_at = new Date();
+
     await user.save();
 
     await sendMail({
@@ -28,9 +30,10 @@ module.exports = {
   },
 
   update: async (req, res) => {
-    const user = await User.findOne({ token: value.token });
+    const { token } = req.value.body;
+    const user = await User.findOne({ token });
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(400).json({ message: 'Token not valid' });
     }
 
     const expired = isAfter(
@@ -38,7 +41,7 @@ module.exports = {
       user.token_created_at
     );
     if (expired) {
-      return res.status(401).json({ message: 'Mail cofirmation token is expired' })
+      return res.status(401).json({ message: 'Mail cofirmation token is expired' });
     }
 
     user.token = null;
@@ -47,6 +50,6 @@ module.exports = {
 
     await user.save();
 
-    return res.send(201).send();
+    return res.status(204).send();
   }
 }

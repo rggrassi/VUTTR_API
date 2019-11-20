@@ -4,7 +4,7 @@ const User = require('../../src/models/User');
 const crypto = require('crypto');
 const subDays = require('date-fns/subDays');
 
-describe('Forgot Password', () => {
+describe('Verify Mail', () => {
   let user = null;
   beforeEach(async() => {
     await User.deleteMany({});
@@ -15,9 +15,9 @@ describe('Forgot Password', () => {
     });
   });
  
-  it('should be able to request password change', async (done) => {
+  it('should be able to request verification of the registration email', async (done) => {
     const response = await request(app)
-      .post('/forgot-password')
+      .post('/verify-mail')
       .send({ email: user.email, redirect_url: 'https://vuttr.com.br' });
 
     expect(response.status).toBe(204);
@@ -25,9 +25,9 @@ describe('Forgot Password', () => {
     done();
   });
 
-  it('should not be able to change passwords without first registering with the app ', async (done) => {
+  it('should not be able to verify your account without first registering with the app', async (done) => {
     const response = await request(app)
-      .post('/forgot-password')
+      .post('/verify-mail')
       .send({ email: 'user404@email.com' });
 
     expect(response.status).toBe(404);
@@ -36,30 +36,28 @@ describe('Forgot Password', () => {
     done();
   });
 
-  it('should be able to confirm password change', async (done) => {
+  it('should be able to confirm the creation of a new account', async (done) => {
     user.token = crypto.randomBytes(32).toString('hex');
-    user.token_created_at = new Date(); 
-
+    user.token_created_at = new Date();  
     await user.save();
 
     const response = await request(app)
-      .put('/forgot-password')
-      .send({ token: user.token, password: 'root12345' });
+      .put('/verify-mail')
+      .send({ token: user.token });
 
     expect(response.status).toBe(204); 
     
     done();
   });
 
-  it('should not be able to confirm password change without a valid token', async (done) => {
+  it('should not be able to confirm the creation of a new account without a valid token', async (done) => {
     user.token = crypto.randomBytes(32).toString('hex');
-    user.token_created_at = new Date();
-
+    user.token_created_at = new Date();  
     await user.save();
 
     const response = await request(app)
-      .put('/forgot-password')
-      .send({ token: 'invalid-token', password: 'root12345' });
+      .put('/verify-mail')
+      .send({ token: 'invalid-token' });
 
     expect(response.status).toBe(400);
     expect(response.body.message).toBe('Token not valid');
@@ -67,18 +65,17 @@ describe('Forgot Password', () => {
     done();
   });
 
-  it('should not be able to confirm password change with an expired token', async (done) => {
+  it('should not be able to confirm the creation of a new account with an expired token', async (done) => {
     user.token = crypto.randomBytes(32).toString('hex');
     user.token_created_at = subDays(new Date(), 3);
-
     await user.save();
 
     const response = await request(app)
-      .put('/forgot-password')
-      .send({ token: user.token, password: 'root12345' });
+      .put('/verify-mail')
+      .send({ token: user.token });
 
     expect(response.status).toBe(401);
-    expect(response.body.message).toBe('Recovery token is expired');
+    expect(response.body.message).toBe('Mail cofirmation token is expired');
 
     done();
   });

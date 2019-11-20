@@ -21,12 +21,12 @@ const UserSchema = mongoose.Schema({
     default: 'user',
     required: true
   },
-  token: {
-    type: String,
-  },
   verified: {
     type: Boolean,
     default: false
+  },
+  token: {
+    type: String,
   },
   token_created_at: {
     type: Date

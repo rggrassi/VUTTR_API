@@ -17,7 +17,7 @@ module.exports = {
   
     await user.save();
   
-    /*await sendMail({
+    await sendMail({
       to: `${user.name} <${user.email}>`,
       subject: 'Reset VUTTR password',
       template: 'forgot_password',
@@ -25,9 +25,11 @@ module.exports = {
         username: user.name,
         link: `${req.body.redirect_url}?token=${user.token}`
       }
-    });*/  
+    });
+
     return res.status(204).send();
   },
+
   update: async (req, res) => {  
     const { token, password } = req.value.body;
     const user = await User.findOne({ token });
@@ -40,7 +42,7 @@ module.exports = {
       user.token_created_at
     );
     if (expired) {
-      return res.status(401).json({ message: 'Recovery token is expired' })
+      return res.status(401).json({ message: 'Recovery token is expired' });
     }
   
     user.token = null;
