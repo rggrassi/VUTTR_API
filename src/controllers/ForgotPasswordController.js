@@ -1,12 +1,13 @@
 const User = require('../models/User');
 const crypto = require('crypto');
-const sendMail = require('../lib/Mail');
 const isAfter = require('date-fns/isAfter');
 const subDays = require('date-fns/subDays');
+const Queue = require('../lib/Queue');
 
 module.exports = {
   store: async (req, res) => {
     const { email } = req.value.body
+    const { redirect_url } = req.body;
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -17,15 +18,7 @@ module.exports = {
   
     await user.save();
   
-    await sendMail({
-      to: `${user.name} <${user.email}>`,
-      subject: 'Reset VUTTR password',
-      template: 'forgot_password',
-      context: {
-        username: user.name,
-        link: `${req.body.redirect_url}?token=${user.token}`
-      }
-    });
+    await Queue.add('ForgotPassword', { user, redirect_url, token });
 
     return res.status(204).send();
   },

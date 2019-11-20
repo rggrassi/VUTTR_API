@@ -10,7 +10,7 @@ module.exports = {
 
     req.value.body.role = 'user';
 
-    const user = await User.create(req.value.body);      
+    const user = await User.create(req.value.body);  
     
     return res.status(201).json(user);
   },

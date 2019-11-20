@@ -7,6 +7,7 @@ const Queue = require('../lib/Queue');
 module.exports = {
   store: async (req, res) => {
     const { email } = req.value.body
+    const { redirect_url } = req.body;
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -17,7 +18,7 @@ module.exports = {
 
     await user.save();
 
-    
+    await Queue.add('AccountConfirmation', { user, redirect_url, token });
 
     return res.status(204).send();
   },
