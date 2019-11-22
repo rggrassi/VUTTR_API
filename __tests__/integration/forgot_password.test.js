@@ -17,8 +17,8 @@ describe('Forgot Password', () => {
  
   it('should be able to request password change', async (done) => {
     const response = await request(app)
-      .post('/forgot-password')
-      .send({ email: user.email, redirect_url: 'https://vuttr.com.br' });
+      .post('/forgot')
+      .send({ email: user.email, redirect: 'https://vuttr.com.br' });
 
     expect(response.status).toBe(204);
 
@@ -27,7 +27,7 @@ describe('Forgot Password', () => {
 
   it('should not be able to change passwords without first registering with the app ', async (done) => {
     const response = await request(app)
-      .post('/forgot-password')
+      .post('/forgot')
       .send({ email: 'user404@email.com' });
 
     expect(response.status).toBe(404);
@@ -43,7 +43,7 @@ describe('Forgot Password', () => {
     await user.save();
 
     const response = await request(app)
-      .put(`/forgot-password/${user.token}`)
+      .put(`/forgot/${user.token}`)
       .send({ password: 'root12345' });
 
     expect(response.status).toBe(204); 
@@ -59,7 +59,7 @@ describe('Forgot Password', () => {
 
     const token = 'invalid-token';
     const response = await request(app)
-      .put(`/forgot-password/${token}`)      
+      .put(`/forgot/${token}`)      
       .send({ password: 'root12345' });
 
     expect(response.status).toBe(400);
@@ -75,7 +75,7 @@ describe('Forgot Password', () => {
     await user.save();
 
     const response = await request(app)
-      .put(`/forgot-password/${user.token}`)      
+      .put(`/forgot/${user.token}`)      
       .send({ password: 'root12345' });
 
     expect(response.status).toBe(401);

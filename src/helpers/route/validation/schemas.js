@@ -52,8 +52,5 @@ module.exports = {
     email: Yup.string()
       .email()
       .required()
-  }),
-  /*accountConfirmationUpdate: Yup.object().shape({
-    token: Yup.string().required()
-  })*/
+  })
 };
