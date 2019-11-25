@@ -41,16 +41,21 @@ module.exports = {
   forgotStore: Yup.object().shape({
     email: Yup.string()
       .email()
+      .required(),
+    redirect: Yup.string()
       .required()
+
   }),
   forgotUpdate: Yup.object().shape({
     password: Yup.string()
       .min(6)
       .required()
   }),
-  accountConfirmationStore: Yup.object().shape({
+  accountStore: Yup.object().shape({
     email: Yup.string()
       .email()
+      .required(),
+    redirect: Yup.string()
       .required()
   })
 };

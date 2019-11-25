@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const { Schema } = mongoose;
+
 const bcrypt = require('bcryptjs');
 
 const UserSchema = mongoose.Schema({
@@ -21,14 +23,15 @@ const UserSchema = mongoose.Schema({
     default: 'user',
     required: true
   },
-  verified: {
+  tokens: [{ 
+    type: Schema.Types.ObjectId,
+    ref: 'Token'
+  }],
+  confirmed: {
     type: Boolean,
     default: false
   },
-  token: {
-    type: String,
-  },
-  token_created_at: {
+  confirmedAt: {
     type: Date
   }
 }, 

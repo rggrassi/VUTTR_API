@@ -1,6 +1,7 @@
 const request = require('supertest');
 const app = require('../../src/app');
 const User = require('../../src/models/User');
+const Token = require('../../src/models/Token');
 const crypto = require('crypto');
 const subDays = require('date-fns/subDays');
 
@@ -20,6 +21,19 @@ describe('Forgot Password', () => {
       .post('/forgot')
       .send({ email: user.email, redirect: 'https://vuttr.com.br' });
 
+    const { tokens } = await User.findById(user._id).populate({
+      path: 'tokens',
+      match: { type: 'forgot' },
+      options: { 
+        sort: { createdAt: -1 },
+        limit: 1
+      }
+    });
+
+    expect(tokens[0]).toMatchObject({
+      type: 'forgot',
+      user: user._id
+    });
     expect(response.status).toBe(204);
 
     done();
@@ -28,7 +42,7 @@ describe('Forgot Password', () => {
   it('should not be able to change passwords without first registering with the app ', async (done) => {
     const response = await request(app)
       .post('/forgot')
-      .send({ email: 'user404@email.com' });
+      .send({ email: 'user404@email.com', redirect: 'https://vuttr.com.br' });
 
     expect(response.status).toBe(404);
     expect(response.body.message).toBe('User not found');
@@ -37,13 +51,16 @@ describe('Forgot Password', () => {
   });
 
   it('should be able to confirm password change', async (done) => {
-    user.token = crypto.randomBytes(32).toString('hex');
-    user.token_created_at = new Date(); 
-
+    const token = await Token.create({
+      token: crypto.randomBytes(32).toString('hex'),
+      type: 'forgot',
+      user: user._id
+    })
+    user.tokens.push(token);
     await user.save();
 
     const response = await request(app)
-      .put(`/forgot/${user.token}`)
+      .put(`/forgot/${token.token}`)
       .send({ password: 'root12345' });
 
     expect(response.status).toBe(204); 
@@ -52,14 +69,17 @@ describe('Forgot Password', () => {
   });
 
   it('should not be able to confirm password change without a valid token', async (done) => {
-    user.token = crypto.randomBytes(32).toString('hex');
-    user.token_created_at = new Date();
-
+    const token = await Token.create({
+      token: crypto.randomBytes(32).toString('hex'),
+      type: 'forgot',
+      user: user._id
+    })
+    user.tokens.push(token);
     await user.save();
 
-    const token = 'invalid-token';
+    const token400 = 'invalid-token';
     const response = await request(app)
-      .put(`/forgot/${token}`)      
+      .put(`/forgot/${token400}`)      
       .send({ password: 'root12345' });
 
     expect(response.status).toBe(400);
@@ -69,13 +89,17 @@ describe('Forgot Password', () => {
   });
 
   it('should not be able to confirm password change with an expired token', async (done) => {
-    user.token = crypto.randomBytes(32).toString('hex');
-    user.token_created_at = subDays(new Date(), 3);
-
+    const token = await Token.create({
+      token: crypto.randomBytes(32).toString('hex'),
+      type: 'forgot',
+      user: user._id,
+      createdAt: subDays(new Date(), 3)
+    })
+    user.tokens.push(token);
     await user.save();
 
     const response = await request(app)
-      .put(`/forgot/${user.token}`)      
+      .put(`/forgot/${token.token}`)      
       .send({ password: 'root12345' });
 
     expect(response.status).toBe(401);
