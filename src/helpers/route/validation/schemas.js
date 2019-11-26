@@ -49,7 +49,10 @@ module.exports = {
   forgotUpdate: Yup.object().shape({
     password: Yup.string()
       .min(6)
-      .required()
+      .required(),
+    passwordConfirm: Yup.string()
+      .min(6)
+      .required()  
   }),
   accountStore: Yup.object().shape({
     email: Yup.string()

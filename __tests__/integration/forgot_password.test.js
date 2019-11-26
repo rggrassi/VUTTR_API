@@ -118,7 +118,7 @@ describe('Forgot Password', () => {
       expect(response.body.message).toBe('This password reset link can no longer be used');
 
       done();
-  })
+  });
 
   it('should not be able to confirm password change with an expired token', async (done) => {
     const token = await Token.create({
