@@ -54,7 +54,8 @@ describe('Verify Mail', () => {
     const token = await Token.create({
       token: crypto.randomBytes(32).toString('hex'),
       type: 'account',
-      user: user._id
+      user: user._id,
+      createdAt: new Date()
     }); 
     user.tokens.push(token);
     await user.save();
@@ -71,7 +72,8 @@ describe('Verify Mail', () => {
     const token = await Token.create({
       token: crypto.randomBytes(32).toString('hex'),
       type: 'account',
-      user: user._id
+      user: user._id,
+      createdAt: new Date()
     }); 
     user.tokens.push(token);
     await user.save();

@@ -4,6 +4,7 @@ const User = require('../../src/models/User');
 const Token = require('../../src/models/Token');
 const crypto = require('crypto');
 const subDays = require('date-fns/subDays');
+const subHours = require('date-fns/subHours');
 
 describe('Forgot Password', () => {
   let user = null;
@@ -54,7 +55,8 @@ describe('Forgot Password', () => {
     const token = await Token.create({
       token: crypto.randomBytes(32).toString('hex'),
       type: 'forgot',
-      user: user._id
+      user: user._id,
+      createdAt: new Date()
     })
     user.tokens.push(token);
     await user.save();
@@ -72,7 +74,8 @@ describe('Forgot Password', () => {
     const token = await Token.create({
       token: crypto.randomBytes(32).toString('hex'),
       type: 'forgot',
-      user: user._id
+      user: user._id,
+      createdAt: new Date()
     })
     user.tokens.push(token);
     await user.save();
@@ -87,6 +90,35 @@ describe('Forgot Password', () => {
 
     done();
   });
+
+  it('should not be able to confirm password with a revoked token', async (done) => {
+    const revokedToken = await Token.create({
+      token: crypto.randomBytes(32).toString('hex'),
+      type: 'forgot',
+      user: user._id,
+      createdAt: subHours(new Date(), 2)
+    });
+    user.tokens.push(revokedToken);
+    await user.save();
+
+    const latestToken = await Token.create({
+      token: crypto.randomBytes(32).toString('hex'),
+      type: 'forgot',
+      user: user._id,
+      createdAt: new Date()
+    })
+    user.tokens.push(latestToken);
+    await user.save();
+
+    const response = await request(app)
+      .put(`/forgot/${revokedToken.token}`)
+      .send({ password: 'root12345' })
+
+      expect(response.status).toBe(401);
+      expect(response.body.message).toBe('This password reset link can no longer be used');
+
+      done();
+  })
 
   it('should not be able to confirm password change with an expired token', async (done) => {
     const token = await Token.create({

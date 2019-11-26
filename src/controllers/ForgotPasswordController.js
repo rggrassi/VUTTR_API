@@ -13,15 +13,17 @@ module.exports = {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const token = await Token.create({
+    const newToken = await Token.create({
       token: crypto.randomBytes(32).toString('hex'),
       type: 'forgot',
-      user: user._id
+      user: user._id,
+      createdAt: new Date()
     })
-    user.tokens.push(token);
+    user.tokens.push(newToken);
     await user.save();
   
-    await Queue.add('ForgotPassword', { user, redirect });
+    const { token } = newToken;
+    await Queue.add('ForgotPassword', { user, redirect, token });
 
     return res.status(204).send();
   },
@@ -32,7 +34,20 @@ module.exports = {
     if (!userToken) {
       return res.status(400).json({ message: 'Token not valid' });
     }
-  
+
+    // Check if exists most recent tokens
+    const latestTokens = await Token.find({ 
+      user: userToken.user,
+      type: 'forgot',
+      createdAt: { $gt: userToken.createdAt }
+    });
+    if (latestTokens.length > 0) {
+      return res.status(401).json({ message: 'This password reset link can no longer be used' });
+
+      /* This password reset link can no longer be used. 
+      This means you have submitted another reset request; In this case, use the most recent link.*/
+    }
+   
     const expired = isAfter(
       subDays(new Date(), 2),
       userToken.createdAt

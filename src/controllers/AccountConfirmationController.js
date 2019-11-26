@@ -7,29 +7,29 @@ const Queue = require('../lib/Queue');
 
 module.exports = {
   store: async (req, res) => {
-
     const { email, redirect } = req.value.body
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const token = await Token.create({
+    const newToken = await Token.create({
       token: crypto.randomBytes(32).toString('hex'),
       type: 'account',
-      user: user._id
+      user: user._id,
+      createdAt: new Date()
     }); 
-    user.tokens.push(token);
+    user.tokens.push(newToken);
     await user.save();
 
-    await Queue.add('AccountConfirmation', { user, redirect });
+    const { token } = newToken;
+    await Queue.add('AccountConfirmation', { user, redirect, token });
 
     return res.status(204).send();
   },
 
   update: async (req, res) => {
     const { token } = req.params;
-
     const userToken = await Token.findOne({ token });    
     if (!userToken) {
       return res.status(400).json({ message: 'Token not valid' });
