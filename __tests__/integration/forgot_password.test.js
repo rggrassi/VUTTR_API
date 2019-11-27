@@ -63,13 +63,39 @@ describe('Forgot Password', () => {
 
     const response = await request(app)
       .put(`/forgot/${token.token}`)
-      .send({ password: 'root12345' });
+      .send({ 
+        password: 'root12345',
+        confirmPassword: 'root12345'
+      });
 
     expect(response.status).toBe(204); 
     
     done();
   });
 
+  it('should not be able to confirm the change without checking with the confirmation password', async (done) => {
+    const token = await Token.create({
+      token: crypto.randomBytes(32).toString('hex'),
+      type: 'forgot',
+      user: user._id,
+      createdAt: new Date()
+    })
+    user.tokens.push(token);
+    await user.save();
+
+    const response = await request(app)
+    .put(`/forgot/${token.token}`)
+    .send({ 
+      password: 'root12345',
+      confirmPassword: 'root123'
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe('Validation fails');
+
+    done();
+  })
+  
   it('should not be able to confirm password change without a valid token', async (done) => {
     const token = await Token.create({
       token: crypto.randomBytes(32).toString('hex'),
@@ -82,8 +108,11 @@ describe('Forgot Password', () => {
 
     const token400 = 'invalid-token';
     const response = await request(app)
-      .put(`/forgot/${token400}`)      
-      .send({ password: 'root12345' });
+    .put(`/forgot/${token400}`)
+    .send({ 
+      password: 'root12345',
+      confirmPassword: 'root12345'
+    });
 
     expect(response.status).toBe(400);
     expect(response.body.message).toBe('Token not valid');
@@ -111,13 +140,16 @@ describe('Forgot Password', () => {
     await user.save();
 
     const response = await request(app)
-      .put(`/forgot/${revokedToken.token}`)
-      .send({ password: 'root12345' })
+    .put(`/forgot/${revokedToken.token}`)
+    .send({ 
+      password: 'root12345',
+      confirmPassword: 'root12345'
+    });  
 
-      expect(response.status).toBe(401);
-      expect(response.body.message).toBe('This password reset link can no longer be used');
+    expect(response.status).toBe(401);
+    expect(response.body.message).toBe('This password reset link can no longer be used');
 
-      done();
+    done();
   });
 
   it('should not be able to confirm password change with an expired token', async (done) => {
@@ -131,12 +163,15 @@ describe('Forgot Password', () => {
     await user.save();
 
     const response = await request(app)
-      .put(`/forgot/${token.token}`)      
-      .send({ password: 'root12345' });
+      .put(`/forgot/${token.token}`)
+      .send({ 
+        password: 'root12345',
+        confirmPassword: 'root12345'
+    });    
 
     expect(response.status).toBe(401);
     expect(response.body.message).toBe('Recovery token is expired');
 
     done();
-  });
+  });  
 });

@@ -59,7 +59,7 @@ module.exports = {
     const user = await User.findById(userToken.user);
 
     const { password } = req.value.body;
-    user.password = password;      
+    user.password = password;          
     await user.save();
   
     return res.status(204).send();

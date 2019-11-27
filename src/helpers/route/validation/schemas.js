@@ -42,23 +42,23 @@ module.exports = {
     email: Yup.string()
       .email()
       .required(),
-    redirect: Yup.string()
-      .required()
-
+    redirect: Yup.string().required()
   }),
   forgotUpdate: Yup.object().shape({
     password: Yup.string()
       .min(6)
       .required(),
-    passwordConfirm: Yup.string()
+    confirmPassword: Yup.string()
+      .when('password', (password, field) =>
+        password ? field.oneOf([Yup.ref('password')]) : field
+      )
       .min(6)
-      .required()  
+      .required()
   }),
   accountStore: Yup.object().shape({
     email: Yup.string()
       .email()
       .required(),
-    redirect: Yup.string()
-      .required()
+    redirect: Yup.string().required()
   })
 };
