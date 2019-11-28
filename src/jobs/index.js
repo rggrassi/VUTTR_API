@@ -1,7 +1,7 @@
-const ForgotPassword = require('./ForgotPassword');
-const AccountConfirmation = require('./AccountConfirmation');
+const Forgot = require('./Forgot');
+const NewAccount = require('./NewAccount');
 
 module.exports = {
-  ForgotPassword,
-  AccountConfirmation
+  Forgot,
+  NewAccount
 }

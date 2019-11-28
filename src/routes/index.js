@@ -7,7 +7,7 @@ const SessionController = require('../controllers/SessionController');
 const UserController = require('../controllers/UserController');
 const ToolController = require('../controllers/ToolController');
 const ForgotPasswordController = require('../controllers/ForgotPasswordController');
-const AccountConfirmationController = require('../controllers/AccountConfirmationController');
+const NewAccountController = require('../controllers/NewAccountController');
 
 router.post('/users', validate(schemas.userCreate), UserController.create);
 router.post('/session', validate(schemas.session), SessionController.create);
@@ -15,8 +15,8 @@ router.post('/session', validate(schemas.session), SessionController.create);
 router.post('/forgot', validate(schemas.forgotStore), ForgotPasswordController.store);
 router.put('/forgot/:token', validate(schemas.forgotUpdate), ForgotPasswordController.update);
 
-router.post('/account', validate(schemas.accountStore), AccountConfirmationController.store);
-router.put('/account/:token', AccountConfirmationController.update);
+router.post('/account', validate(schemas.accountStore), NewAccountController.store);
+router.put('/account/:token', NewAccountController.update);
 
 router.use(auth);
 

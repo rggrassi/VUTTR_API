@@ -147,7 +147,7 @@ describe('Forgot Password', () => {
     });  
 
     expect(response.status).toBe(401);
-    expect(response.body.message).toBe('This password reset link can no longer be used');
+    expect(response.body.message).toBe('You have submitted another reset request, please use the most recent link');
 
     done();
   });

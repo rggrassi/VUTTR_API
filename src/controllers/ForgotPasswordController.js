@@ -23,7 +23,8 @@ module.exports = {
     await user.save();
   
     const { token } = newToken;
-    await Queue.add('ForgotPassword', { user, redirect, token });
+    
+    await Queue.add('Forgot', { user, redirect, token });
 
     return res.status(204).send();
   },
@@ -42,10 +43,9 @@ module.exports = {
       createdAt: { $gt: userToken.createdAt }
     });
     if (latestTokens.length > 0) {
-      return res.status(401).json({ message: 'This password reset link can no longer be used' });
-
-      /* This password reset link can no longer be used. 
-      This means you have submitted another reset request; In this case, use the most recent link.*/
+      return res.status(401).json({ 
+        message: 'You have submitted another reset request, please use the most recent link'
+      });
     }
    
     const expired = isAfter(
@@ -61,6 +61,8 @@ module.exports = {
     const { password } = req.value.body;
     user.password = password;          
     await user.save();
+
+    await Queue.add('ForgotConfirmation', { user });
   
     return res.status(204).send();
   }

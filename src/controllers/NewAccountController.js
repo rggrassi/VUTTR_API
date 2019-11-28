@@ -23,7 +23,8 @@ module.exports = {
     await user.save();
 
     const { token } = newToken;
-    await Queue.add('AccountConfirmation', { user, redirect, token });
+
+    await Queue.add('NewAccount', { user, redirect, token });
 
     return res.status(204).send();
   },
