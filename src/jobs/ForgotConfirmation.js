@@ -1,7 +1,7 @@
 const sendMail = require('../lib/Mail');
 
 module.exports = {
-  key: 'Forgot',
+  key: 'ForgotConfirmation',
   async handle({ data }) {
     const { user } = data;
     await sendMail({
