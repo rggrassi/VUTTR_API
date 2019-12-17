@@ -1,6 +1,29 @@
 const Tool = require('../models/Tool');
 const { Types } = require('mongoose');
 
+async function pagination(conditions, params) {
+  const total = await Tool.countDocuments(conditions);
+
+  const pageSize = parseInt(params.pageSize) || 10;
+  const page = parseInt(params.page) || 0;
+
+  const calculated = total / pageSize;
+  const truncated = Math.trunc(calculated); 
+  const pages = calculated > truncated ? truncated + 1 : truncated;
+
+  const results = await Tool.find(conditions)
+    .skip(page * pageSize)
+    .limit(pageSize)
+    .populate('user', ['name', 'email']);
+
+  return {
+    pageSize,
+    pages,
+    total,
+    results,
+  } 
+}
+
 module.exports = {
   create: async (req, res) => {
     req.value.body.user = req.user._id;
@@ -16,23 +39,22 @@ module.exports = {
       })
     }
     
-    const filter = {};    
+    const conditions = {};    
     const tagsOnly = JSON.parse(req.query.tagsOnly);
     
     if (tagsOnly) {
-      filter.tags = {
+      conditions.tags = {
         $in: req.query.search.split(',')
       }
     } else {
-      filter.title = {
+      conditions.title = {
         $regex: req.query.search, $options: 'i'
       }
     }
+    
+    const result = await pagination(conditions, req.query);
   
-    const tools = await Tool.find(filter)
-      .populate('user', ['name', 'email']);
-  
-    return res.json(tools);
+    return res.json(result);
   },
   remove: async(req, res) => {  
     const tool = await Tool.findById(req.params.id)
