@@ -10,6 +10,13 @@ module.exports = {
     if (!user) {
       return res.status(404).json({ message: 'Could not find your account' });
     }
+
+    /**
+     * Check if the user is confirmed  
+    */    
+    if (!user.confirmed) {
+      return res.status(401).json({ message: 'Unable to change an unverified user' });
+    }
   
     if (!(await user.checkPassword(password))) {
       return res.status(401).json({ message: 'Wrong credentials' });

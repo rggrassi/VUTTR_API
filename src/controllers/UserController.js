@@ -19,12 +19,18 @@ module.exports = {
   
     /**
      * Checks if [id] passed by parameter matches the registered user
-     */
+    */
     const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
   
+    /**
+     * Check if the user is confirmed  
+     */
+    if (!req.user.confirmed) {
+      return res.status(401).json({ message: 'Unable to change an unverified user' });
+    }
     /**
      * Checks if the user is trying to update data from other users. 
      * Because only admin users have this permission.
